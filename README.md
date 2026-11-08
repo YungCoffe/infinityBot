@@ -1,6 +1,6 @@
 # InfinityBot — InfinityTools
 
-Bot Discord em Node.js para deploy no **Render como Background Worker**. O bot não pede, persiste ou registra no projeto os dados retornados pelos geradores; as respostas do painel são efêmeras no Discord.
+Bot Discord em Node.js para deploy no **Render como Web Service**. O bot não pede, persiste ou registra no projeto os dados retornados pelos geradores; as respostas do painel são efêmeras no Discord.
 
 O painel tem tema de Natal, com cores vermelha e verde e ícones festivos. Após atualizar o bot, execute `/painel` novamente para publicar a versão decorada; mensagens antigas não são alteradas automaticamente.
 
@@ -49,19 +49,24 @@ export DISCORD_GUILD_ID='id_do_servidor_de_testes'
 
 Nunca envie token ao Git ou ao Discord. O bot registra `/painel` após conectar. **A conexão real ao Discord não foi testada neste ambiente**, portanto confirme permissões, token e logs no seu servidor.
 
-## Deploy no Render (Background Worker)
+## Deploy no Render (Web Service)
 
 1. Envie o projeto a um repositório Git, sem `.env`, tokens ou `node_modules`.
-2. No Render, escolha **New +** → **Background Worker** e conecte o repositório.
+2. No Render, escolha **New +** → **Web Service** e conecte o repositório.
 3. Configure:
-   - **Environment:** `Node`
+   - **Language:** `Node`
    - **Build Command:** `npm install`
    - **Start Command:** `npm start`
    - **Environment Variable (Secret):** `DISCORD_TOKEN`
    - Opcional: `DISCORD_GUILD_ID` para o servidor de testes.
-4. Faça o deploy e confira os logs para `InfinityBot conectado como ...`.
+   - Opcional: **Health Check Path** `/healthz`.
+4. Faça o deploy e confira os logs para `Servidor HTTP ativo` e `InfinityBot conectado como ...`.
 
-Um Background Worker é adequado porque o bot mantém WebSocket e não expõe rota HTTP. Confira preços e limites atuais do Render antes de publicar.
+O servidor escuta em `0.0.0.0` na porta fornecida em `PORT` pelo Render (padrão local: `10000`). As rotas `/` e `/healthz` mostram se o processo HTTP responde e se o bot está conectado ao Discord. HTTP 200 significa que o processo está respondendo, não garante que o bot esteja conectado.
+
+**Ping automático:** o serviço faz uma requisição ao próprio `/healthz` a cada 8 minutos enquanto está rodando, usando `RENDER_EXTERNAL_URL`, que o Render fornece automaticamente. Fora do Render, se essa variável não existir, o ping fica desativado. Ele apenas tenta manter o serviço ativo e não garante disponibilidade.
+
+**Plano Free:** o Render pode hibernar o serviço após 15 minutos sem tráfego de entrada. Se o serviço já tiver parado, ele não consegue enviar o próprio ping para acordar; é necessária uma requisição externa. Mensagens do Discord não acordam o Web Service. Nos deploys pode haver sobreposição temporária de processos. Consulte os limites atuais do Render.
 
 ## Testes offline
 
@@ -77,6 +82,8 @@ Os testes usam `node:test` com mocks: conferem parâmetros exatos das três cham
 
 ```text
 src/index.js       Discord, /painel, limites e respostas efêmeras
+src/http-server.js servidor HTTP para o Render
+src/self-ping.js   ping automático a cada 8 minutos
 src/fourdevs.js    cliente não oficial 4Devs, timeout e parsing
 src/utils.js       Spotify local e apresentação segura
 test/utils.test.js testes offline com mocks
