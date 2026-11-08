@@ -2,7 +2,7 @@
 
 Bot Discord em Node.js para deploy no **Render como Web Service**. O bot não pede, persiste ou registra no projeto os dados retornados pelos geradores; as respostas do painel são efêmeras no Discord.
 
-O painel tem tema de Natal, com cores vermelha e verde e ícones festivos. Após atualizar o bot, execute `/painel` novamente para publicar a versão decorada; mensagens antigas não são alteradas automaticamente.
+O painel usa Componentes V2 do Discord, tema de Natal, a imagem fornecida em `assets/banner-natal.jpg` e quatro botões. Após atualizar o bot, execute `/painel` novamente para publicar a versão nova; mensagens antigas não são alteradas automaticamente. O bot precisa de permissão para enviar mensagens e anexar arquivos no canal.
 
 ## Recursos e limites
 
@@ -25,7 +25,7 @@ O processo não grava CPFs, pessoas ou cartões em arquivo, banco, cache ou logs
 
 - Node.js 22 ou superior
 - Aplicação/bot no [Discord Developer Portal](https://discord.com/developers/applications)
-- Permissões do bot: `applications.commands`, `bot`, envio de mensagens e embeds
+- Escopos de convite: `applications.commands` e `bot`. Permissões no canal: enviar mensagens e anexar arquivos.
 
 ## Instalação local
 
@@ -76,12 +76,14 @@ node --check src/index.js
 node --check src/fourdevs.js
 ```
 
-Os testes usam `node:test` com mocks: conferem parâmetros exatos das três chamadas 4Devs, parsing de cartão, uma chamada de pessoa, HTTP 429, limites e Spotify local. Não conectam ao Discord, não usam credenciais nem colocam dados gerados nos arquivos.
+Os testes usam `node:test` com mocks: conferem a estrutura V2, o banner e os botões, parâmetros das chamadas 4Devs, parsing de cartão, HTTP 429, limites e Spotify local. Não conectam ao Discord, não usam credenciais nem colocam dados gerados nos arquivos.
 
 ## Estrutura
 
 ```text
 src/index.js       Discord, /painel, limites e respostas efêmeras
+src/panel-view.js  conteúdo do painel natalino
+assets/banner-natal.jpg imagem do painel
 src/http-server.js servidor HTTP para o Render
 src/self-ping.js   ping automático a cada 8 minutos
 src/fourdevs.js    cliente não oficial 4Devs, timeout e parsing
