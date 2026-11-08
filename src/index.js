@@ -1,13 +1,15 @@
 'use strict';
 
 const {
-  ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, Events, GatewayIntentBits,
+  ActionRowBuilder, Client, Events, GatewayIntentBits, MessageFlags,
   PermissionFlagsBits, REST, Routes, SlashCommandBuilder, StringSelectMenuBuilder
 } = require('discord.js');
 const { SAFE_QUANTITIES, assertSafeQuantity, makeSpotifyLinks, formatPerson } = require('./utils');
 const { FourDevsError, generateCpf, generatePerson, generateCard } = require('./fourdevs');
 const { createHealthServer, getPort } = require('./http-server');
 const { startSelfPing } = require('./self-ping');
+const { buildPanelComponents } = require('./panel-view');
+const path = require('node:path');
 
 const token = process.env.DISCORD_TOKEN;
 if (!token) {
@@ -24,15 +26,6 @@ const panelCommand = new SlashCommandBuilder()
   .setDescription('Publica o painel persistente do InfinityBot.')
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
-function panelRows() {
-  return [new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId('panel:people').setLabel('Pessoas fictícias').setEmoji('🎅').setStyle(ButtonStyle.Danger),
-    new ButtonBuilder().setCustomId('panel:cpf').setLabel('CPF fictício').setEmoji('❄️').setStyle(ButtonStyle.Success),
-    new ButtonBuilder().setCustomId('panel:spotify').setLabel('Links Spotify').setEmoji('🎁').setStyle(ButtonStyle.Danger),
-    new ButtonBuilder().setCustomId('panel:cards').setLabel('Cartões fictícios').setEmoji('🎄').setStyle(ButtonStyle.Success)
-  )];
-}
-
 function quantityRow() {
   return [new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder().setCustomId('quantity:spotify').setPlaceholder('Escolha uma quantidade segura')
@@ -48,22 +41,6 @@ function isCoolingDown(userId) {
   if (expiresAt > now) return Math.ceil((expiresAt - now) / 1000);
   cooldowns.set(userId, now + COOLDOWN_MS);
   return 0;
-}
-
-function buildPanelEmbed() {
-  return {
-    color: 0xC62828,
-    title: '🎄 InfinityBot • Especial de Natal',
-    description: [
-      '✨ Bem-vindo ao painel de Natal do InfinityTools!',
-      'Escolha uma opção abaixo. As respostas são privadas (efêmeras).',
-      'Pessoas, CPFs e cartões são dados fictícios de gerador; não os use como dados reais.',
-      'Cartões fictícios, sem valor.',
-      'Os dados só são exibidos nesta resposta e não são gravados pelo bot.',
-      'Links Spotify são locais e não oferecem promoção.'
-    ].join('\n'),
-    footer: { text: '🎁 InfinityTools • Boas festas!' }
-  };
 }
 
 async function registerCommands(applicationId) {
@@ -93,7 +70,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
         await interaction.reply({ content: 'Apenas administradores podem publicar o painel.', ephemeral: true });
         return;
       }
-      await interaction.reply({ embeds: [buildPanelEmbed()], components: panelRows() });
+      await interaction.reply({
+        flags: MessageFlags.IsComponentsV2,
+        files: [{ attachment: path.join(__dirname, '..', 'assets', 'banner-natal.jpg'), name: 'banner-natal.jpg' }],
+        components: buildPanelComponents()
+      });
       return;
     }
 
