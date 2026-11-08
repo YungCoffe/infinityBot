@@ -6,6 +6,8 @@ const {
 } = require('discord.js');
 const { SAFE_QUANTITIES, assertSafeQuantity, makeSpotifyLinks, formatPerson } = require('./utils');
 const { FourDevsError, generateCpf, generatePerson, generateCard } = require('./fourdevs');
+const { createHealthServer, getPort } = require('./http-server');
+const { startSelfPing } = require('./self-ping');
 
 const token = process.env.DISCORD_TOKEN;
 if (!token) {
@@ -133,7 +135,18 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
-client.login(token).catch((error) => {
-  console.error('Falha ao conectar ao Discord:', error.message);
-  process.exitCode = 1;
+const port = getPort(process.env.PORT);
+const server = createHealthServer(() => client.isReady());
+server.on('error', (error) => {
+  console.error('Falha no servidor HTTP:', error.message);
+  process.exit(1);
+});
+server.listen(port, '0.0.0.0', () => {
+  console.log(`Servidor HTTP ativo na porta ${port}.`);
+  startSelfPing(process.env.RENDER_EXTERNAL_URL);
+  client.login(token).catch((error) => {
+    console.error('Falha ao conectar ao Discord:', error.message);
+    client.destroy();
+    server.close(() => { process.exitCode = 1; });
+  });
 });
