@@ -3,9 +3,10 @@
 const crypto = require('node:crypto');
 const { FALLBACK_RETRY_AFTER_MS, UsernameCheckError, normalizeOptionalUsername, validateRequestedLength, validateRequestedQuantity, validateUsername } = require('./username-check');
 
-const MIN_GAP_MS = 2_000;
+// Intervalo global, conservador e fixo: não é configurável por usuário.
+const MIN_GAP_MS = 10_000;
 const MAX_ATTEMPTS_PER_REQUEST = 25;
-const MAX_QUEUED_BATCHES = 3; // 3 × pior caso (25 × 10s) permanece abaixo de 15 min do Discord.
+const MAX_QUEUED_BATCHES = 3; // 3 × 25 × 10s = 12m30s, antes do teto de interação.
 const GENERATED_ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
 const secureRandom = () => crypto.randomInt(0, GENERATED_ALPHABET.length) / GENERATED_ALPHABET.length;
 
@@ -15,8 +16,6 @@ function generateCandidate(length, random = secureRandom) {
   return validateUsername(candidate, length);
 }
 
-// Mantido exportado para compatibilidade/testes. O lote real gera sob demanda, pois a meta é
-// encontrar nomes livres, não testar somente N candidatos predeterminados.
 function buildCandidates({ length, quantity, optionalUsername = '', random = secureRandom }) {
   const requestedLength = validateRequestedLength(length);
   const requestedQuantity = validateRequestedQuantity(quantity);
@@ -45,7 +44,6 @@ class UsernameBatchChecker {
   run(input) {
     const remainingRateLimitMs = this.#remainingRateLimitMs();
     if (remainingRateLimitMs > 0) return Promise.resolve().then(() => this.#blockedBatchResult(input, remainingRateLimitMs));
-    // Não deixa a fila global crescer a ponto de uma interação expirar (Discord: ~15 min).
     if (this.pendingBatches >= this.maxQueuedBatches) return Promise.resolve().then(() => this.#queueFullResult(input));
     this.pendingBatches += 1;
     const work = this.tail.then(() => this.#runSerial(input));
@@ -61,15 +59,23 @@ class UsernameBatchChecker {
   }
   #blockedBatchResult(input, remainingRateLimitMs) {
     const { supplied } = this.#baseInput(input);
-    return { candidates: supplied ? [supplied] : [], results: [], checkedCount: 0, attemptedCount: 0, availableCount: 0, targetQuantity: validateRequestedQuantity(input.quantity), unverified: supplied ? [supplied] : [], rateLimited: { waitMs: remainingRateLimitMs } };
+    return { candidates: supplied ? [supplied] : [], results: [], checkedCount: 0, attemptedCount: 0, availableCount: 0, targetQuantity: validateRequestedQuantity(input.quantity), unverified: supplied ? [supplied] : [], rateLimited: { waitMs: remainingRateLimitMs, retryAtMs: this.now() + remainingRateLimitMs } };
   }
   #queueFullResult(input) {
     const { supplied, quantity } = this.#baseInput(input);
     return { candidates: supplied ? [supplied] : [], results: [], checkedCount: 0, attemptedCount: 0, availableCount: 0, targetQuantity: quantity, unverified: supplied ? [supplied] : [], queueFull: true };
   }
-  async #waitUntilAllowed() { const remaining = this.nextAllowedAt - this.now(); if (remaining > 0) await this.sleep(remaining); }
+  #emit(callback, event) { if (typeof callback === 'function') { try { callback(event); } catch { /* o indicador nunca interrompe consultas */ } } }
+  async #waitUntilAllowed(progress, state) {
+    const remaining = this.nextAllowedAt - this.now();
+    if (remaining > 0) {
+      this.#emit(progress, { phase: 'waiting', waitMs: remaining, nextRequestAtMs: this.nextAllowedAt, ...state });
+      await this.sleep(remaining);
+    }
+  }
 
   async #runSerial(input) {
+    const progress = input.onProgress;
     const remainingRateLimitMs = this.#remainingRateLimitMs(); if (remainingRateLimitMs > 0) return this.#blockedBatchResult(input, remainingRateLimitMs);
     const { length, quantity, supplied } = this.#baseInput(input);
     const onlySupplied = Boolean(supplied) && quantity === 1;
@@ -87,21 +93,31 @@ class UsernameBatchChecker {
         if (stoppedError) break;
       }
       seen.add(username); candidates.push(username);
-      await this.#waitUntilAllowed();
+      await this.#waitUntilAllowed(progress, { attemptedCount: results.length, targetQuantity: quantity, availableCount });
+      // Reserva o próximo início ANTES da chamada: erros, timeouts e 429 também contam.
+      const startedAtMs = this.now();
+      this.nextAllowedAt = startedAtMs + this.minGapMs;
+      this.#emit(progress, { phase: 'checking', username, startedAtMs, attemptedCount: results.length + 1, targetQuantity: quantity, availableCount });
       try {
         const result = await this.check(username, { expectedLength: String(length) });
         const status = result.taken ? 'taken' : 'available';
         results.push({ username, status });
         if (status === 'available') availableCount += 1;
-        this.nextAllowedAt = this.now() + this.minGapMs;
+        this.#emit(progress, { phase: 'result', username, status, attemptedCount: results.length, targetQuantity: quantity, availableCount });
       } catch (error) {
         if (error instanceof UsernameCheckError && error.code === 'RATE_LIMITED') {
           const waitMs = Number.isFinite(error.retryAfterMs) ? error.retryAfterMs : this.fallbackRetryAfterMs;
-          const normalizedWaitMs = Math.max(0, waitMs); this.nextAllowedAt = this.now() + normalizedWaitMs;
-          this.rateLimitedUntil = this.nextAllowedAt; rateLimited = { waitMs: normalizedWaitMs }; break;
+          const normalizedWaitMs = Math.max(0, waitMs);
+          this.rateLimitedUntil = Math.max(this.nextAllowedAt, this.now() + normalizedWaitMs);
+          this.nextAllowedAt = this.rateLimitedUntil;
+          // Mostra o prazo que realmente bloqueia a fila (Retry-After e o intervalo global).
+          rateLimited = { waitMs: Math.max(0, this.rateLimitedUntil - this.now()), retryAtMs: this.rateLimitedUntil };
+          this.#emit(progress, { phase: 'rate_limited', username, attemptedCount: results.length + 1, targetQuantity: quantity, availableCount, rateLimited });
+          break;
         }
         stoppedError = error?.code || 'UNKNOWN'; results.push({ username, status: 'error', code: stoppedError });
-        this.nextAllowedAt = this.now() + this.minGapMs; break;
+        this.#emit(progress, { phase: 'error', username, code: stoppedError, attemptedCount: results.length, targetQuantity: quantity, availableCount });
+        break;
       }
     }
     const attemptedCount = results.length + (rateLimited ? 1 : 0);
