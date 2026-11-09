@@ -1,66 +1,54 @@
 # InfinityBot — somente consulta de nicks Discord
 
-Bot Discord em **Node.js** para publicar no Render como **Web Service**. Este projeto mantém somente o painel natalino de busca/verificação indicativa de usernames Discord. Não usa Docker, banco de dados, arquivo `.env`, conta pessoal, senha ou token de usuário.
+Bot Discord em **Node.js** para publicar no Render como **Web Service**. Mantém somente o painel natalino de consulta indicativa de usernames Discord. Não usa Docker, banco de dados, `.env`, conta pessoal, senha ou token de usuário.
 
 > Depois de atualizar, publique `/painel` novamente: painéis antigos não são alterados automaticamente.
 
 ## Segurança e limites importantes
 
-- O bot usa exclusivamente `DISCORD_TOKEN`, o **token do bot**, configurado como variável secreta de ambiente.
-- Ele **nunca pede, usa ou salva** senha, token, cookie ou qualquer login de conta pessoal.
-- Ele **não altera usernames**, não reserva nomes e não tenta fazer cadastro.
-- “Aparentemente disponível” significa somente que uma resposta válida da rota retornou `taken: false`. Isso não é garantia de disponibilidade absoluta/final e pode mudar a qualquer momento.
-- A verificação usa uma rota não oficial e não autenticada do Discord; ela pode mudar, falhar, responder de forma inesperada ou limitar consultas.
-- Não há tentativa de contornar rate limit, CAPTCHA ou autenticação.
+- O bot usa exclusivamente `DISCORD_TOKEN`, o **token do bot**, como variável secreta de ambiente.
+- Ele nunca pede, usa ou salva senha, token, cookie ou login de conta pessoal; não altera, reserva ou cadastra usernames.
+- “Aparentemente disponível” significa somente resposta válida `taken: false`; não é garantia final e pode mudar.
+- A rota de usernames é não oficial e não autenticada. Pode mudar, falhar ou retornar HTTP 429; **não existe correção garantida** para esse limite.
+- Não há contorno de rate limit, CAPTCHA ou autenticação, nem retentativa automática de um lote interrompido.
 
 ## Painel `/painel`
 
-Somente administradores podem publicar o painel. O botão **Encontrar @** abre um modal privado com:
+Somente administradores publicam o painel. O botão **Encontrar @** abre um modal privado com tamanho (2–32), meta (1–5) e `@` opcional. Quando o `@` é preenchido com meta 1, somente ele é testado. Para meta maior, ele é testado primeiro e candidatos distintos são gerados até a meta, erro, prazo ou máximo de **25 tentativas**.
 
-- **tamanho:** inteiro de 2 a 32;
-- **meta:** 1 a 5 nicks aparentemente disponíveis;
-- **@ opcional:** nick a testar, com ou sem `@`.
+### Fila, progresso e 429
 
-Quando o campo opcional é preenchido e a meta é **1**, somente esse nick é testado; se estiver em uso, o bot não gera outro. Para metas maiores, ele testa o nick informado primeiro e gera candidatos distintos até alcançar a meta, até uma falha, ou até o máximo de **25 tentativas**.
+- Toda consulta é serializada numa **fila global**: há exatamente **30 segundos entre os inícios** de quaisquer duas requisições, inclusive entre lotes concorrentes e depois de falha, timeout ou 429. A primeira não espera; não há espera extra após a última.
+- A resposta privada exibe a barra real de tentativas (até 25), a consulta atual e a próxima consulta durante o intervalo. Se houver lote anterior, avisa a posição na fila antes de esperar.
+- Há cooldown em memória de **30 segundos por usuário**, para bloquear reenvios repetidos antes de entrarem na fila. A fila aceita no máximo três lotes; além disso, responde sem consultar.
+- Em HTTP 429, o lote é interrompido imediatamente. O `Retry-After`/`retry_after` recebido é cumprido estritamente: nenhuma nova requisição começa durante o cooldown global. A mensagem mostra o prazo e uma barra de tempo; o fim do relógio não inicia lote automaticamente nem confirma disponibilidade.
+- Um `Retry-After: 1631` equivale a cerca de 27 minutos e 11 segundos. Aguarde até o fim do prazo recebido mesmo após redeploy: reiniciar o serviço perde o cooldown que estava **somente em memória**, e o Render sem armazenamento persistente não o preserva permanentemente. O redeploy nunca garante resolver um 429.
+- A rota pode continuar recusando mesmo com 30 segundos. Reduzir quantidade de pedidos, não reenviar o mesmo formulário e respeitar a fila/cooldown são as medidas reais adotadas para reduzir 429; não há como garantir eliminá-lo sem suporte oficial da rota.
 
-As consultas são **serializadas globalmente** e há um intervalo conservador, fixo, de **10 segundos entre o início de quaisquer duas requisições** — inclusive entre lotes, nicks específicos e depois de falhas. A primeira requisição não espera e não há espera extra depois da última. O máximo é **25 tentativas** por busca; só o intervalo pode levar cerca de **4 minutos** (além do tempo de rede), e usuários concorrentes podem demorar mais na fila. Também existe cooldown de 15 segundos por pessoa e fila máxima de três lotes, para permanecer dentro da janela de interação de aproximadamente 15 minutos.
+### Prazo de interação e resultados parciais
 
-Durante a busca, a resposta privada mostra o estado real da consulta e a barra de tentativas; entre chamadas, informa o intervalo global e a hora relativa da próxima consulta. Atualizações são agregadas e limitadas a no máximo uma edição a cada 5 segundos. Em HTTP 429, timeout, erro de rede, HTTP ou resposta inválida, o lote para; nenhum item sem resposta válida é tratado como disponível.
-
-### Espera visível em HTTP 429
-
-Quando a rota informar `retry_after`/`Retry-After`, a resposta privada mostra uma barra de tempo **real** e o horário relativo nativo do Discord (por exemplo, “em 2 minutos”). A mensagem é atualizada no máximo a cada 15 segundos, até 60 edições, e **não faz novas consultas**: ela apenas exibe o prazo já retornado. Esperas longas (acima de 14 minutos) ficam apenas com o horário relativo para não depender da validade da interação. Se ocorrer outro 429 em uma nova tentativa, o novo prazo prevalece para aquela nova resposta. O fim do relógio não significa que um nick está disponível nem garante que a próxima tentativa será aceita; o bot não retoma o lote automaticamente e reiniciar o bot encerra temporizadores pendentes.
+Com 25 tentativas, `30s × 25 = 12m30s` somente de espaçamento, além da rede e da fila; isso pode superar a vida aproximada de 15 minutos de uma resposta de interação Discord. Por isso cada busca tem prazo conservador de **12 minutos contados da criação da interação, antes da fila**. Ao alcançar o prazo — inclusive enquanto espera na fila ou o intervalo — ela não inicia mais consultas e retorna os resultados parciais enquanto ainda pode editar a resposta. Isso pode reduzir a quantidade de resultados, mas nunca inventa disponibilidade.
 
 ## Deploy no Render (Web Service Node)
 
-1. Extraia o ZIP e envie os arquivos extraídos na raiz do repositório: `package.json`, `package-lock.json`, `src/`, `assets/`, `README.md` e `render.yaml`.
-2. No Render, escolha **New +** → **Web Service** e conecte o repositório.
-3. Selecione runtime **Node** — não Docker.
-4. Configure:
-   - **Build Command:** `npm ci`
-   - **Start Command:** `npm start`
-   - **Health Check Path:** `/healthz`
-5. Em **Environment**, crie o segredo `DISCORD_TOKEN` com o token do seu bot.
-6. Faça o deploy. Nunca coloque tokens em Git, ZIP, `.env` ou mensagens.
+1. Extraia o ZIP e envie os arquivos extraídos na raiz do repositório.
+2. No Render: **New + → Web Service**, runtime **Node** (não Docker).
+3. Configure **Build Command** `npm ci`, **Start Command** `npm start` e health check `/healthz`.
+4. Em **Environment**, crie o segredo `DISCORD_TOKEN` com o token do bot. Nunca o coloque no Git, ZIP, `.env` ou mensagens.
+5. Faça o deploy.
 
-A aplicação escuta `0.0.0.0` e `process.env.PORT` (fallback local `10000`). `/` e `/healthz` retornam HTTP 200 mesmo sem `DISCORD_TOKEN`; nesse caso o Discord fica offline, permitindo testar o Web Service com segurança.
-
-O `render.yaml` já descreve o serviço Node, com `npm ci`, `npm start` e health check `/healthz`.
-
-## Variáveis de ambiente
+A aplicação escuta `0.0.0.0` e `process.env.PORT` (fallback local `10000`). `/` e `/healthz` retornam 200 sem token, mas o Discord fica offline. `render.yaml` já descreve o serviço Node.
 
 | Variável | Obrigatória | Uso |
 | --- | --- | --- |
-| `DISCORD_TOKEN` | Para conectar ao Discord | Token do bot; lido somente do ambiente. |
-| `DISCORD_GUILD_ID` | Não | ID de servidor de teste para registrar `/painel` mais rápido. Sem ela, o comando é global. |
-| `RENDER_EXTERNAL_URL` | Não | URL `https://...onrender.com` para ping periódico opcional. |
-| `PORT` | Não | Definida pelo Render; localmente o padrão é `10000`. |
-
-`.env.example` contém apenas placeholders e o projeto não carrega `.env` automaticamente.
+| `DISCORD_TOKEN` | Para conectar | Token do bot, lido só do ambiente. |
+| `DISCORD_GUILD_ID` | Não | Servidor de testes para registrar `/painel` mais rápido. |
+| `RENDER_EXTERNAL_URL` | Não | URL para ping opcional. |
+| `PORT` | Não | Definida pelo Render; padrão local `10000`. |
 
 ## Uso local e verificações
 
-Requer Node.js 22 ou superior.
+Requer Node.js 22 ou superior:
 
 ```bash
 npm ci
@@ -70,12 +58,4 @@ node --check src/name-lookup.js
 node --check src/username-batch.js
 ```
 
-Teste do HTTP sem token de Discord:
-
-```bash
-PORT=10001 npm start
-# em outro terminal
-curl http://127.0.0.1:10001/healthz
-```
-
-Os testes são offline e usam mocks: não conectam ao Discord, não usam credenciais e não fazem chamadas externas.
+Os testes são offline e simulam relógio, fila, espaçamento, expiração do prazo, 429 e falhas. Não conectam ao Discord, não usam credenciais e não fazem chamadas externas.
