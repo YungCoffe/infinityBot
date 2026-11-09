@@ -20,6 +20,7 @@ function sendReplyText(status) {
 
 function createPhrasesInteractionHandler({ client, getManager, permissionFlags, messageFlags, configurationFailurePrefix = 'A configuração foi salva, mas a postagem inicial não foi feita', scheduleNote = 'O agendamento nas horas cheias continua ativo.', configurationSaveFailure = 'Não configurado: não foi possível salvar e fixar a configuração; nenhuma frase foi publicada.', log = console }) {
   return async interaction => {
+    const commandStartedAt = Date.now(); let requestedSubcommand = null;
     try {
       if (!interaction.isChatInputCommand?.() || interaction.commandName !== 'frases') return;
       if (!canManagePhrases(interaction.memberPermissions, permissionFlags)) {
@@ -29,9 +30,12 @@ function createPhrasesInteractionHandler({ client, getManager, permissionFlags, 
       // Defer imediatamente: consulta de frase, tradução e capa podem exceder 3 segundos.
       await interaction.deferReply({ flags: messageFlags.Ephemeral });
       const manager = getManager();
-      const sub = interaction.options.getSubcommand();
+      const sub = interaction.options.getSubcommand(); requestedSubcommand = sub;
       if (sub === 'enviar') {
+        const startedAt = Date.now();
+        log.info?.(`Frases comando=enviar canal=${interaction.channel?.id || 'unknown'} status=attempt`);
         const out = await manager.sendNow(interaction.channel);
+        log.info?.(`Frases comando=enviar canal=${interaction.channel?.id || 'unknown'} status=${out.status} duracao_ms=${Math.max(0, Date.now() - startedAt)}`);
         await interaction.editReply({ content: sendReplyText(out.status) });
         return;
       }
@@ -59,6 +63,7 @@ function createPhrasesInteractionHandler({ client, getManager, permissionFlags, 
       const mine = ids.filter(id => client.channels.cache.get(id)?.guildId === interaction.guildId);
       await interaction.editReply({ content: mine.length ? `Canais ativos: ${mine.map(id => `<#${id}>`).join(', ')}.` : 'Nenhum canal ativo neste servidor.' });
     } catch (error) {
+      if (requestedSubcommand === 'enviar') log.info?.(`Frases comando=enviar canal=${interaction.channel?.id || 'unknown'} status=error duracao_ms=${Math.max(0, Date.now() - commandStartedAt)}`);
       log.error?.('Erro ao processar /frases:', error.code || error.name || 'Error');
       const message = { content: 'Não foi possível concluir o comando de frases.', ephemeral: true };
       if (interaction.deferred) await interaction.editReply(message);
