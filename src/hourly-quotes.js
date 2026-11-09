@@ -3,7 +3,6 @@ const crypto = require('node:crypto');
 const path = require('node:path');
 const API_URL = 'https://api.animechan.io/v1/quotes/random';
 const TRANSLATE_URL = 'https://api.mymemory.translated.net/get';
-const APERTIUM_URL = 'https://apertium.org/apy/translate';
 const DEEPL_FREE_URL = 'https://api-free.deepl.com/v2/translate';
 const DEEPL_PRO_URL = 'https://api.deepl.com/v2/translate';
 const TIME_ZONE = 'America/Sao_Paulo';
@@ -24,7 +23,7 @@ function normalize(v) { return String(v || '').normalize('NFKC').replace(/\s+/g,
 function hashQuote(q) { return crypto.createHash('sha256').update(`${normalize(q.content)}\n${normalize(q.anime)}\n${normalize(q.character)}`).digest('hex').slice(0, 24); }
 function providerLabel(provider) {
   if (provider === 'deepl') return 'tradução automática DeepL';
-  return provider === 'apertium' ? 'tradução automática Apertium, via espanhol' : 'tradução automática MyMemory';
+  return 'tradução automática MyMemory';
 }
 function postFooter(key, hash, provider = null, manual = false) { return `${manual ? MANUAL_POST_MARKER : POST_MARKER} | ${manual ? 'manual' : key} | quote:${hash} | ${provider ? providerLabel(provider) : 'original em inglês (tradutores indisponíveis)'}`; }
 function configFooter(id) { return `${CONFIG_MARKER} | channel:${id}`; }
@@ -119,7 +118,7 @@ async function translateDeepL(text, fetchImpl = global.fetch, log = console, opt
   try {
     const r = await fetchWithTimeout(fetchImpl, deeplUrl(apiKey, plan), {
       method: 'POST',
-      headers: { accept: 'application/json', 'content-type': 'application/json', 'DeepL-Auth-Key': apiKey },
+      headers: { accept: 'application/json', 'content-type': 'application/json', Authorization: `DeepL-Auth-Key ${apiKey}` },
       body: JSON.stringify({ text: [String(text || '')], source_lang: 'EN', target_lang: 'PT-BR' })
     });
     // Limits and all HTTP/network failures deliberately fall through once; no retries around quota/rate limits.
@@ -162,26 +161,12 @@ async function translateMyMemory(text, fetchImpl = global.fetch, log = console, 
   if (normalize(full) === normalize(text) && !isPlausibleSharedTerm(String(text || '').trim(), full)) { translationLog(log, 'mymemory', 'unchanged-unverified', startedAt); return null; }
   translationLog(log, 'mymemory', 'success', startedAt, `${chunks.length}/${chunks.length}`); return full;
 }
-function apertiumTranslation(body, sourceText) { const raw = body?.responseData?.translatedText ?? body?.translatedText ?? body?.translation; const decision = translationDecision(body, sourceText, raw, { rejectMarkers: true }); return decision.accepted ? decision.text : null; }
-async function apertiumStep(text, langpair, fetchImpl, log, step) {
-  const startedAt = Date.now();
-  try {
-    const url = `${APERTIUM_URL}?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langpair)}`;
-    const r = await fetchWithTimeout(fetchImpl, url, { headers: { accept: 'application/json' } });
-    if (!r.ok || r.status === 429) { translationLog(log, 'apertium', `http-${r.status}`, startedAt, step); return null; }
-    const body = await r.json(); const decision = translationDecision(body, text, undefined, { rejectMarkers: true });
-    translationLog(log, 'apertium', decision.category, startedAt, step);
-    return decision.accepted ? decision.text : null;
-  } catch (error) { translationLog(log, 'apertium', error?.name === 'AbortError' ? 'timeout' : 'network-error', startedAt, step); return null; }
-}
-async function translateApertium(text, fetchImpl = global.fetch, log = console) { const spanish = await apertiumStep(text, 'eng|spa', fetchImpl, log, '1/2'); if (!spanish) return null; return apertiumStep(spanish, 'spa|por_BR', fetchImpl, log, '2/2'); }
 async function translateQuote(text, fetchImpl = global.fetch, log = console, options = {}) {
   const startedAt = Date.now(); const deepl = await translateDeepL(text, fetchImpl, log, options);
   if (deepl) { translationLog(log, 'deepl', 'final-success', startedAt); return { text: deepl, provider: 'deepl' }; }
   const myMemory = await translateMyMemory(text, fetchImpl, log, options);
   if (myMemory) { translationLog(log, 'mymemory', 'final-success', startedAt); return { text: myMemory, provider: 'mymemory' }; }
-  const apertium = await translateApertium(text, fetchImpl, log);
-  if (apertium) { translationLog(log, 'apertium', 'final-success', startedAt); return { text: apertium, provider: 'apertium' }; }
+  // Apertium via espanhol foi removido da cadeia: uma falha agora preserva o original em inglês.
   translationLog(log, 'none', 'final-original', startedAt); return null;
 }
 async function translatePt(text, fetchImpl = global.fetch, log = console, options = {}) { return (await translateQuote(text, fetchImpl, log, options))?.text || null; }
@@ -206,4 +191,4 @@ function createHourlyQuoteManager({ client, fetchImpl = global.fetch, now = () =
   async function tick() { if (running) return { status: 'running' }; const current = now(), minute = Number(zonedParts(current).minute); if (minute !== 0 && minute !== 1) return { status: 'outside-window' }; if (current.getTime() < blockedUntil) return { status: 'source-cooldown' }; running = true; try { const results = []; for (const channel of channels.values()) { const result = await postToChannel(channel, current); results.push(result); if (result.status === 'rate-limited') break; } return { status: 'done', results }; } finally { running = false; } }
   return { channels, configure, stop, restore, tick, sendNow, status: () => [...channels.keys()] };
 }
-module.exports = { API_URL, TRANSLATE_URL, APERTIUM_URL, DEEPL_FREE_URL, DEEPL_PRO_URL, TIME_ZONE, CONFIG_MARKER, POST_MARKER, MANUAL_POST_MARKER, FALLBACK_NAME, FALLBACK_PATH, MAX_ATTEMPTS, DAY_REQUEST_LIMIT, HISTORY_WINDOW_DAYS, NETWORK_TIMEOUT_MS, MYMEMORY_MAX_BYTES, RateLimitError, isValidMyMemoryContactEmail, myMemoryUrl, retryAfterMs, createTranslationState, deeplPlan, deeplUrl, deeplTranslation, translateDeepL, zonedParts, hourKey, displayTime, hashQuote, parseQuote, isMotivational, fetchWithTimeout, fetchQuote, decodeHtmlEntities, splitTextForMyMemory, apiErrorCategory, isPlausibleSharedTerm, translationDecision, isUsableTranslation, translateMyMemory, translateApertium, translateQuote, translatePt, providerLabel, requiredPermissions, hasPermissions, postInfo, scanHistory, buildEmbed, makeMessage, findConfigInGuilds, createHourlyQuoteManager };
+module.exports = { API_URL, TRANSLATE_URL, DEEPL_FREE_URL, DEEPL_PRO_URL, TIME_ZONE, CONFIG_MARKER, POST_MARKER, MANUAL_POST_MARKER, FALLBACK_NAME, FALLBACK_PATH, MAX_ATTEMPTS, DAY_REQUEST_LIMIT, HISTORY_WINDOW_DAYS, NETWORK_TIMEOUT_MS, MYMEMORY_MAX_BYTES, RateLimitError, isValidMyMemoryContactEmail, myMemoryUrl, retryAfterMs, createTranslationState, deeplPlan, deeplUrl, deeplTranslation, translateDeepL, zonedParts, hourKey, displayTime, hashQuote, parseQuote, isMotivational, fetchWithTimeout, fetchQuote, decodeHtmlEntities, splitTextForMyMemory, apiErrorCategory, isPlausibleSharedTerm, translationDecision, isUsableTranslation, translateMyMemory, translateQuote, translatePt, providerLabel, requiredPermissions, hasPermissions, postInfo, scanHistory, buildEmbed, makeMessage, findConfigInGuilds, createHourlyQuoteManager };
