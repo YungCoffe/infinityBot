@@ -1,61 +1,69 @@
-# InfinityBot — somente consulta de nicks Discord
+# InfinityBot — frases horárias de anime
 
-Bot Discord em **Node.js** para publicar no Render como **Web Service**. Mantém somente o painel natalino de consulta indicativa de usernames Discord. Não usa Docker, banco de dados, `.env`, conta pessoal, senha ou token de usuário.
+Bot Node.js para Discord/Render, **sem Docker e sem banco de dados**. Esta edição registra apenas `/frases`: não inclui painel, consulta ou arquivos de nicks.
 
-> Depois de atualizar, publique `/painel` novamente: painéis antigos não são alterados automaticamente.
+## Uso no celular
 
-## Segurança e limites importantes
+No canal do Discord, digite `/frases`. O aplicativo mostra os subcomandos e o seletor de canal. Somente membros com permissão **Administrador** podem configurar.
 
-- O bot usa exclusivamente `DISCORD_TOKEN`, o **token do bot**, como variável secreta de ambiente.
-- Ele nunca pede, usa ou salva senha, token, cookie ou login de conta pessoal; não altera, reserva ou cadastra usernames.
-- “Aparentemente disponível” significa somente resposta válida `taken: false`; não é garantia final e pode mudar.
-- A rota de usernames é não oficial e não autenticada. Pode mudar, falhar ou retornar HTTP 429; **não existe correção garantida** para esse limite.
-- Não há contorno de rate limit, CAPTCHA ou autenticação, nem retentativa automática de um lote interrompido.
+- `/frases configurar canal:#texto` — salva e fixa a configuração naquele canal e faz **uma tentativa de postagem imediatamente**. Depois, segue o ciclo nas horas cheias. Se a tentativa inicial falhar (por exemplo, fonte indisponível), a resposta informa isso claramente, sem prometer postagem; a configuração permanece salva para as próximas horas.
+- `/frases parar` — usado no canal ativo; remove somente o pin de configuração e para o envio. Não apaga mensagens já publicadas.
+- `/frases status` — lista os canais ativos do servidor.
 
-## Painel `/painel`
+A configuração só passa a valer depois que a mensagem é enviada e fixada com sucesso. Se isso falhar, o canal não é mantido em memória e nenhuma frase é publicada. A configuração é o pin criado pelo bot no Discord, portanto sobrevive a restart/deploy sem banco. O bot só lê seus próprios pins e marcadores de rodapé; não lê conteúdo de mensagens pessoais.
 
-Somente administradores publicam o painel. O botão **Encontrar @** abre um modal privado com tamanho (2–32), meta (1–5) e `@` opcional. Quando o `@` é preenchido com meta 1, somente ele é testado. Para meta maior, ele é testado primeiro e candidatos distintos são gerados até a meta, erro, prazo ou máximo de **25 tentativas**.
+## Permissões no canal
 
-### Fila, progresso e 429
+Conceda ao bot: `ViewChannel`, `ReadMessageHistory`, `SendMessages`, `EmbedLinks`, `AttachFiles` e `ManageMessages`.
 
-- Toda consulta é serializada numa **fila global**: há exatamente **30 segundos entre os inícios** de quaisquer duas requisições, inclusive entre lotes concorrentes e depois de falha, timeout ou 429. A primeira não espera; não há espera extra após a última.
-- A resposta privada exibe a barra real de tentativas (até 25), a consulta atual e a próxima consulta durante o intervalo. Se houver lote anterior, avisa a posição na fila antes de esperar.
-- Há cooldown em memória de **30 segundos por usuário**, para bloquear reenvios repetidos antes de entrarem na fila. A fila aceita no máximo três lotes; além disso, responde sem consultar.
-- Em HTTP 429, o lote é interrompido imediatamente. O `Retry-After`/`retry_after` recebido é cumprido estritamente: nenhuma nova requisição começa durante o cooldown global. A mensagem mostra o prazo e uma barra de tempo; o fim do relógio não inicia lote automaticamente nem confirma disponibilidade.
-- Um `Retry-After: 1631` equivale a cerca de 27 minutos e 11 segundos. Aguarde até o fim do prazo recebido mesmo após redeploy: reiniciar o serviço perde o cooldown que estava **somente em memória**, e o Render sem armazenamento persistente não o preserva permanentemente. O redeploy nunca garante resolver um 429.
-- A rota pode continuar recusando mesmo com 30 segundos. Reduzir quantidade de pedidos, não reenviar o mesmo formulário e respeitar a fila/cooldown são as medidas reais adotadas para reduzir 429; não há como garantir eliminá-lo sem suporte oficial da rota.
+`ManageMessages` permite fixar/remover a configuração. `AttachFiles` é obrigatório tanto na configuração quanto no envio, porque quando não há capa segura do anime o bot anexa a imagem local de fallback. Sem alguma permissão, `/frases configurar` não ativa o canal; se ela for removida depois, o envio é pulado.
 
-### Prazo de interação e resultados parciais
+## Horário, envio imediato e antirrepetição
 
-Com 25 tentativas, `30s × 25 = 12m30s` somente de espaçamento, além da rede e da fila; isso pode superar a vida aproximada de 15 minutos de uma resposta de interação Discord. Por isso cada busca tem prazo conservador de **12 minutos contados da criação da interação, antes da fila**. Ao alcançar o prazo — inclusive enquanto espera na fila ou o intervalo — ela não inicia mais consultas e retorna os resultados parciais enquanto ainda pode editar a resposta. Isso pode reduzir a quantidade de resultados, mas nunca inventa disponibilidade.
+- Fuso fixo: `America/Sao_Paulo`.
+- O processo verifica a cada minuto e publica no minuto `00`; aceita `01` como pequena janela de segurança após atraso/restart.
+- Ao configurar, ele tenta uma frase naquele instante somente no canal escolhido. Exemplo: configurado às `00:15`, tenta às `00:15` e volta a tentar normalmente às `01:00`.
+- Cada postagem recebe uma chave de data+hora de São Paulo. Assim, se a configuração acontecer em `00:00` ou `00:01`, a verificação daquele mesmo horário encontra a postagem inicial e não duplica o envio.
+- Há bloqueio por canal para serializar configuração, timer e chamadas simultâneas. Outros canais configurados não são afetados.
+- Não recupera horas perdidas. Não rode duas instâncias do mesmo bot: a deduplicação por histórico reduz duplicatas, mas não substitui uma única instância ativa.
+- O bot procura seus próprios marcadores nos últimos 7 dias e pula o envio se não conseguir verificar o histórico com segurança.
+- A fonte é Animechan (`/v1/quotes/random`). Há até 3 tentativas para uma frase positiva, máximo local de 100 consultas/dia/IP e respeito a HTTP 429/`Retry-After`. Falhas/timeout não são sucesso.
 
-## Deploy no Render (Web Service Node)
+## Tradução e texto original
 
-1. Extraia o ZIP e envie os arquivos extraídos na raiz do repositório.
-2. No Render: **New + → Web Service**, runtime **Node** (não Docker).
-3. Configure **Build Command** `npm ci`, **Start Command** `npm start` e health check `/healthz`.
-4. Em **Environment**, crie o segredo `DISCORD_TOKEN` com o token do bot. Nunca o coloque no Git, ZIP, `.env` ou mensagens.
-5. Faça o deploy.
+O texto em inglês é enviado ao MyMemory (`en|pt-BR`) para tradução automática. Uma tradução só é marcada como automática quando a resposta possui `responseStatus` 200, texto em português aproveitável e não parece aviso/erro/limite.
 
-A aplicação escuta `0.0.0.0` e `process.env.PORT` (fallback local `10000`). `/` e `/healthz` retornam 200 sem token, mas o Discord fica offline. `render.yaml` já descreve o serviço Node.
+Quando MyMemory estiver indisponível, retornar erro/429, quota ou conteúdo inválido, o bot **publica a frase original em inglês**. O embed e o rodapé informam explicitamente `original em inglês; MyMemory indisponível`; ele não a chama de tradução automática e nunca publica o aviso de quota como se fosse uma frase. A hora de emissão continua exibida normalmente.
 
-| Variável | Obrigatória | Uso |
-| --- | --- | --- |
-| `DISCORD_TOKEN` | Para conectar | Token do bot, lido só do ambiente. |
-| `DISCORD_GUILD_ID` | Não | Servidor de testes para registrar `/painel` mais rápido. |
-| `RENDER_EXTERNAL_URL` | Não | URL para ping opcional. |
-| `PORT` | Não | Definida pelo Render; padrão local `10000`. |
+## Capas e imagem de fallback
 
-## Uso local e verificações
+A capa remota é pesquisada no AniList com timeout. Ela só é usada se o título corresponder exatamente (após normalização) ou a um sinônimo seguro mapeado explicitamente; resultados parecidos não são aceitos, para não misturar animes. Com capa válida, o embed usa somente a URL HTTPS remota e **não anexa fallback**.
 
-Requer Node.js 22 ou superior:
+Sem capa, sem correspondência segura, timeout, falha de API ou resposta inválida, o embed usa `attachment://infinity-fallback.jpg` e anexa exclusivamente `assets/infinity-fallback.jpg`, a imagem local fornecida pelo usuário. Ela é apenas a imagem de fallback: o bot não cria nem afirma criar fundo com texto sobreposto.
+
+Capas continuam sujeitas aos direitos de seus titulares e aos termos do AniList; AniList é fonte de URL, não licença de uso. Animechan e MyMemory também possuem seus próprios termos, disponibilidade e limites.
+
+## Deploy no Render (Node)
+
+1. Extraia o ZIP na raiz do repositório e envie para seu Git.
+2. No Render, use **New → Web Service**, ambiente **Node** (sem Docker).
+3. Build command: `npm ci`; Start command: `npm start`; health check: `/healthz`.
+4. Em **Environment**, crie `DISCORD_TOKEN` como segredo. Opcional: `DISCORD_GUILD_ID` para registrar rápido em um servidor de teste e `RENDER_EXTERNAL_URL` para self-ping.
+5. Convide o bot com os escopos `bot` e `applications.commands`, dê as permissões acima e use `/frases configurar`.
+6. Após mudar variáveis/código, faça **Manual Deploy → Deploy latest commit** ou reinicie o serviço. Depois do restart o bot restaura canais pelos pins.
+
+Tiers que dormem, rede, APIs externas e deploys podem atrasar ou impedir posts; não há garantia de entrega exatamente uma vez.
+
+## Testes
+
+A suíte é offline, com fakes: não conecta ao Discord e não consulta APIs reais.
 
 ```bash
 npm ci
-npm test
+node --test
 node --check src/index.js
-node --check src/name-lookup.js
-node --check src/username-batch.js
+node --check src/hourly-quotes.js
+node --check src/quote-artwork.js
 ```
 
-Os testes são offline e simulam relógio, fila, espaçamento, expiração do prazo, 429 e falhas. Não conectam ao Discord, não usam credenciais e não fazem chamadas externas.
+Ela cobre envio imediato às `00:15` e o próximo envio às `01:00`, deduplicação concorrente, configuração sem permissão sem envio, estado retornado pela configuração, tradução válida e fallback para original, emissão normal com tradutor indisponível, capas AniList e imagem local de fallback.
