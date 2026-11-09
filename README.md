@@ -4,8 +4,9 @@ Bot Node.js para Discord/Render, **sem Docker e sem banco de dados**. Esta ediç
 
 ## Uso no celular
 
-No canal do Discord, digite `/frases`. O aplicativo mostra os subcomandos e o seletor de canal. Somente membros com permissão **Administrador** podem configurar.
+No canal do Discord, digite `/frases`. O aplicativo mostra os subcomandos e o seletor de canal. Membros com permissão **Administrador** ou **Gerenciar servidor** podem usar os comandos.
 
+- `/frases enviar` — envia **imediatamente no canal atual**, sem precisar estar configurado. Não cria/remove pins, não muda a agenda ou a contagem de posts horários. O envio manual tem marcador próprio, participa da prevenção de repetição de citações e pode ocorrer mesmo se já houve post na mesma hora.
 - `/frases configurar canal:#texto` — salva e fixa a configuração naquele canal e faz **uma tentativa de postagem imediatamente**. Depois, segue o ciclo nas horas cheias. Se a tentativa inicial falhar, a resposta informa isso claramente; a configuração permanece salva para as próximas horas.
 - `/frases parar` — usado no canal ativo; remove somente o pin de configuração e para o envio. Não apaga mensagens já publicadas.
 - `/frases status` — lista os canais ativos do servidor.
@@ -23,6 +24,7 @@ Conceda ao bot: `ViewChannel`, `ReadMessageHistory`, `SendMessages`, `EmbedLinks
 - Fuso fixo: `America/Sao_Paulo`.
 - O processo verifica a cada minuto e publica no minuto `00`; aceita `01` como pequena janela de segurança após atraso/restart.
 - Ao configurar, ele tenta uma frase naquele instante somente no canal escolhido. Exemplo: configurado às `00:15`, tenta às `00:15` e volta a tentar normalmente às `01:00`.
+- `/frases enviar` é manual: funciona no canal em que foi chamado, mesmo sem configuração prévia, e sempre tenta enviar. Seu marcador é separado do marcador de hora; assim, um envio manual não bloqueia a publicação agendada da mesma hora e uma publicação agendada não bloqueia o manual.
 - Cada postagem recebe uma chave de data+hora de São Paulo. Assim, se a configuração acontecer em `00:00` ou `00:01`, a verificação daquele mesmo horário encontra a postagem inicial e não duplica o envio.
 - Há bloqueio por canal para serializar configuração, timer e chamadas simultâneas. Outros canais configurados não são afetados.
 - Não recupera horas perdidas. Não rode duas instâncias do mesmo bot: a deduplicação por histórico reduz duplicatas, mas não substitui uma única instância ativa.
@@ -62,12 +64,13 @@ Tiers que dormem, rede, APIs externas e deploys podem atrasar ou impedir posts; 
 
 ## Testes
 
-A suíte é offline, com mocks: não conecta ao Discord e não consulta APIs reais. Ela cobre MyMemory preferido, resposta curta como `Lute! → Seja forte.`, HTML/menções, blocos longos multibyte, 403/429/quota, fallback Apertium via espanhol, erro/marcadores Apertium, ausência de mistura parcial e fallback original, além de envio imediato, agendamento, permissões, deduplicação e capas.
+A suíte é offline, com mocks: não conecta ao Discord e não consulta APIs reais. Ela cobre MyMemory preferido, resposta curta como `Lute! → Seja forte.`, HTML/menções, blocos longos multibyte, 403/429/quota, fallback Apertium via espanhol, erro/marcadores Apertium, ausência de mistura parcial e fallback original, além de envios manuais repetidos na mesma hora, separação entre manual/agendado, ausência de configuração do canal, interação adiada, permissões, falha de serviço, deduplicação e capas.
 
 ```bash
 npm ci
 node --test
 node --check src/index.js
 node --check src/hourly-quotes.js
+node --check src/frases-interaction.js
 node --check src/quote-artwork.js
 ```
