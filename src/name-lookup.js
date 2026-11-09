@@ -1,68 +1,57 @@
 'use strict';
 
-const { UsernameCheckError, checkUsername } = require('./username-check');
+const { checkUsername, UsernameCheckError } = require('./username-check');
+const { UsernameBatchChecker, MAX_ATTEMPTS_PER_REQUEST } = require('./username-batch');
 
 const OPEN_BUTTON_ID = 'names:open';
 const SUBMIT_MODAL_ID = 'names:submit';
 const LENGTH_FIELD_ID = 'names:length';
+const QUANTITY_FIELD_ID = 'names:quantity';
 const USERNAME_FIELD_ID = 'names:username';
+const defaultBatchChecker = new UsernameBatchChecker({ check: checkUsername });
 
 function usernameModalSpec() {
-  return {
-    customId: SUBMIT_MODAL_ID,
-    title: 'Consultar @ do Discord',
-    fields: [
-      { customId: LENGTH_FIELD_ID, label: 'Tamanho (2 a 32)', placeholder: 'Ex.: 8', minLength: 1, maxLength: 2 },
-      { customId: USERNAME_FIELD_ID, label: 'Username sem @', placeholder: 'Ex.: nome.legal', minLength: 2, maxLength: 32 }
-    ]
-  };
+  return { customId: SUBMIT_MODAL_ID, title: 'Encontrar @ disponíveis', fields: [
+    { customId: LENGTH_FIELD_ID, label: 'Tamanho do nick (2 a 32)', placeholder: 'Ex.: 8', minLength: 1, maxLength: 2, required: true },
+    { customId: QUANTITY_FIELD_ID, label: 'Nicks disponíveis desejados (1 a 5)', placeholder: 'Ex.: 3', minLength: 1, maxLength: 1, required: true },
+    { customId: USERNAME_FIELD_ID, label: '@ opcional para testar primeiro', placeholder: 'Ex.: @nomelegal (deixe vazio para aleatórios)', minLength: 0, maxLength: 33, required: false }
+  ] };
 }
-
-// Carrega discord.js apenas na hora de abrir o modal; mantém as validações testáveis offline.
 function buildUsernameModal() {
   const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
   const spec = usernameModalSpec();
-  const fields = spec.fields.map((field) => new TextInputBuilder()
-    .setCustomId(field.customId).setLabel(field.label).setPlaceholder(field.placeholder)
-    .setStyle(TextInputStyle.Short).setRequired(true).setMinLength(field.minLength).setMaxLength(field.maxLength));
-  return new ModalBuilder().setCustomId(spec.customId).setTitle(spec.title)
-    .addComponents(...fields.map((field) => new ActionRowBuilder().addComponents(field)));
+  const fields = spec.fields.map(field => new TextInputBuilder().setCustomId(field.customId).setLabel(field.label).setPlaceholder(field.placeholder).setStyle(TextInputStyle.Short).setRequired(field.required).setMinLength(field.minLength).setMaxLength(field.maxLength));
+  return new ModalBuilder().setCustomId(spec.customId).setTitle(spec.title).addComponents(...fields.map(field => new ActionRowBuilder().addComponents(field)));
 }
-
 function usernameErrorMessage(error) {
-  if (!(error instanceof UsernameCheckError)) return 'Não foi possível consultar este nome agora. Tente novamente em instantes.';
-  if (['INVALID_LENGTH', 'INVALID_USERNAME', 'LENGTH_MISMATCH'].includes(error.code)) return error.message;
-  if (error.code === 'RATE_LIMITED') return 'A consulta foi limitada temporariamente. Aguarde e tente novamente.';
-  if (error.code === 'TIMEOUT') return 'A consulta excedeu o tempo limite. Tente novamente depois.';
-  return 'Não foi possível consultar a disponibilidade agora. Tente novamente em instantes.';
+  if (!(error instanceof UsernameCheckError)) return 'Não foi possível consultar agora. Nenhum nick foi tratado como disponível.';
+  if (['INVALID_LENGTH', 'INVALID_QUANTITY', 'INVALID_USERNAME', 'LENGTH_MISMATCH'].includes(error.code)) return error.message;
+  if (error.code === 'TIMEOUT') return 'A consulta excedeu o tempo limite. Esse nick não foi verificado.';
+  return 'Não foi possível consultar agora. Nenhum nick foi tratado como disponível.';
 }
-
-function formatUsernameResult({ username, taken }) {
-  const status = taken ? 'parece estar em uso' : 'parece estar disponível';
-  return `**Resultado indicativo:** \`@${username}\` ${status}.\n\n` +
-    'Isso não confirma posse, reserva, cadastro ou disponibilidade final. A consulta é privada e o bot não grava o nome.';
-}
-
-async function handleUsernameInteraction(interaction, { check = checkUsername, buildModal = buildUsernameModal } = {}) {
-  if (interaction.isButton() && interaction.customId === OPEN_BUTTON_ID) {
-    await interaction.showModal(buildModal());
-    return true;
+function formatUsernameBatchResult(batch) {
+  const target = batch.targetQuantity ?? '?'; const attempted = batch.attemptedCount ?? batch.results.length;
+  const lines = [`**Resultado indicativo — ${batch.availableCount ?? 0} de ${target} nick(s) aparentemente disponível(is); ${attempted} tentativa(s), ${batch.checkedCount} resposta(s) válida(s):**`];
+  for (const result of batch.results) {
+    if (result.status === 'available') lines.push(`• \`@${result.username}\` — aparentemente disponível`);
+    else if (result.status === 'taken') lines.push(`• \`@${result.username}\` — parece estar em uso`);
+    else lines.push(`• \`@${result.username}\` — falha (${result.code}); não verificado`);
   }
+  if (batch.queueFull) lines.push('\nA fila global está cheia para preservar o prazo da interação do Discord. Tente novamente em instantes; nenhum nick foi verificado.');
+  else if (batch.rateLimited) lines.push(`\n**Limite HTTP 429:** interrompido. Aguarde cerca de ${Math.ceil(batch.rateLimited.waitMs / 1000)}s antes de tentar de novo; nenhum resultado pendente é disponibilidade.`);
+  else if (batch.stoppedError) lines.push(`\nInterrompido por erro (${batch.stoppedError}). Faltam nicks; tente novamente. Nenhum resultado sem resposta válida é disponibilidade.`);
+  else if (batch.exhausted) lines.push(`\nForam atingidas ${MAX_ATTEMPTS_PER_REQUEST} tentativas antes da meta. Foram encontrados ${batch.availableCount} de ${target}; tente novamente para procurar outros.`);
+  else if ((batch.availableCount ?? 0) < target) lines.push(`\nForam encontrados ${batch.availableCount ?? 0} de ${target}; tente novamente para procurar outros.`);
+  lines.push('\n“Aparentemente disponível” só significa resposta válida com `taken: false`; pode mudar. O bot não altera nem reserva nicks. A rota não oficial pode falhar, não usa token de usuário, não contorna limites/CAPTCHA e não envia novos lotes automaticamente.');
+  return lines.join('\n');
+}
+async function handleUsernameInteraction(interaction, { batchChecker = defaultBatchChecker, buildModal = buildUsernameModal } = {}) {
+  if (interaction.isButton() && interaction.customId === OPEN_BUTTON_ID) { await interaction.showModal(buildModal()); return true; }
   if (!(interaction.isModalSubmit() && interaction.customId === SUBMIT_MODAL_ID)) return false;
-
-  const expectedLength = interaction.fields.getTextInputValue(LENGTH_FIELD_ID);
-  const username = interaction.fields.getTextInputValue(USERNAME_FIELD_ID);
+  const length = interaction.fields.getTextInputValue(LENGTH_FIELD_ID); const quantity = interaction.fields.getTextInputValue(QUANTITY_FIELD_ID); const optionalUsername = interaction.fields.getTextInputValue(USERNAME_FIELD_ID);
   await interaction.deferReply({ ephemeral: true });
-  try {
-    const result = await check(username, { expectedLength });
-    await interaction.editReply({ content: formatUsernameResult(result) });
-  } catch (error) {
-    await interaction.editReply({ content: usernameErrorMessage(error) });
-  }
+  try { const batch = await batchChecker.run({ length, quantity, optionalUsername }); await interaction.editReply({ content: formatUsernameBatchResult(batch) }); }
+  catch (error) { await interaction.editReply({ content: usernameErrorMessage(error) }); }
   return true;
 }
-
-module.exports = {
-  OPEN_BUTTON_ID, SUBMIT_MODAL_ID, LENGTH_FIELD_ID, USERNAME_FIELD_ID,
-  usernameModalSpec, buildUsernameModal, usernameErrorMessage, formatUsernameResult, handleUsernameInteraction
-};
+module.exports = { OPEN_BUTTON_ID, SUBMIT_MODAL_ID, LENGTH_FIELD_ID, QUANTITY_FIELD_ID, USERNAME_FIELD_ID, usernameModalSpec, buildUsernameModal, usernameErrorMessage, formatUsernameBatchResult, handleUsernameInteraction };
