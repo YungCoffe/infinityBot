@@ -9,6 +9,7 @@ const { FourDevsError, generateCpf, generatePerson, generateCard } = require('./
 const { createHealthServer, getPort } = require('./http-server');
 const { startSelfPing } = require('./self-ping');
 const { buildPanelComponents } = require('./panel-view');
+const { OPEN_BUTTON_ID, SUBMIT_MODAL_ID, handleUsernameInteraction } = require('./name-lookup');
 const path = require('node:path');
 
 const token = process.env.DISCORD_TOKEN;
@@ -72,9 +73,20 @@ client.on(Events.InteractionCreate, async (interaction) => {
       }
       await interaction.reply({
         flags: MessageFlags.IsComponentsV2,
-        files: [{ attachment: path.join(__dirname, '..', 'assets', 'banner-natal.jpg'), name: 'banner-natal.jpg' }],
+        files: [{ attachment: path.join(__dirname, '..', 'assets', 'banner-natalino.jpg'), name: 'banner-natalino.jpg' }],
         components: buildPanelComponents()
       });
+      return;
+    }
+
+    // Consulta de username: abre modal e responde sempre de modo efêmero.
+    if ((interaction.isButton() && interaction.customId === OPEN_BUTTON_ID) ||
+        (interaction.isModalSubmit() && interaction.customId === SUBMIT_MODAL_ID)) {
+      if (interaction.isModalSubmit()) {
+        const wait = isCoolingDown(interaction.user.id);
+        if (wait) { await interaction.reply({ content: `Aguarde ${wait}s antes de consultar novamente.`, ephemeral: true }); return; }
+      }
+      await handleUsernameInteraction(interaction);
       return;
     }
 
