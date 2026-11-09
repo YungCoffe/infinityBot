@@ -6,7 +6,7 @@ Bot Node.js para Discord/Render, **sem Docker e sem banco de dados**. Esta ediç
 
 No canal do Discord, digite `/frases`. O aplicativo mostra os subcomandos e o seletor de canal. Somente membros com permissão **Administrador** podem configurar.
 
-- `/frases configurar canal:#texto` — salva e fixa a configuração naquele canal e faz **uma tentativa de postagem imediatamente**. Depois, segue o ciclo nas horas cheias. Se a tentativa inicial falhar (por exemplo, fonte indisponível), a resposta informa isso claramente, sem prometer postagem; a configuração permanece salva para as próximas horas.
+- `/frases configurar canal:#texto` — salva e fixa a configuração naquele canal e faz **uma tentativa de postagem imediatamente**. Depois, segue o ciclo nas horas cheias. Se a tentativa inicial falhar, a resposta informa isso claramente; a configuração permanece salva para as próximas horas.
 - `/frases parar` — usado no canal ativo; remove somente o pin de configuração e para o envio. Não apaga mensagens já publicadas.
 - `/frases status` — lista os canais ativos do servidor.
 
@@ -29,11 +29,17 @@ Conceda ao bot: `ViewChannel`, `ReadMessageHistory`, `SendMessages`, `EmbedLinks
 - O bot procura seus próprios marcadores nos últimos 7 dias e pula o envio se não conseguir verificar o histórico com segurança.
 - A fonte é Animechan (`/v1/quotes/random`). Há até 3 tentativas para uma frase positiva, máximo local de 100 consultas/dia/IP e respeito a HTTP 429/`Retry-After`. Falhas/timeout não são sucesso.
 
-## Tradução e texto original
+## Tradução automática, limites e diagnóstico
 
-O texto em inglês é enviado ao MyMemory (`en|pt-BR`) para tradução automática. Uma tradução só é marcada como automática quando a resposta possui `responseStatus` 200, texto em português aproveitável e não parece aviso/erro/limite.
+Não é necessária chave, credencial, banco ou serviço próprio para traduzir.
 
-Quando MyMemory estiver indisponível, retornar erro/429, quota ou conteúdo inválido, o bot **publica a frase original em inglês**. O embed e o rodapé informam explicitamente `original em inglês; MyMemory indisponível`; ele não a chama de tradução automática e nunca publica o aviso de quota como se fosse uma frase. A hora de emissão continua exibida normalmente.
+1. **MyMemory é sempre a primeira opção**, com `en|pt-BR`. O texto é dividido sequencialmente em frases ou no último espaço disponível, em blocos de no máximo **480 bytes UTF-8**. Isso evita o limite público de tamanho sem quebrar caracteres multibyte. Os blocos são recompostos somente se **todos** forem válidos; se um único bloco falhar, nenhum trecho parcial é publicado.
+2. Como fallback, o bot usa a API pública oficial do **Apertium** em duas etapas: `eng|spa` e `spa|por_BR`. O rodapé e o campo Fonte dizem exatamente **“tradução automática Apertium, via espanhol”**. É uma alternativa de disponibilidade, não promessa de qualidade: a passagem pelo espanhol pode produzir redação inferior.
+3. Se as duas alternativas falharem, a frase é publicada integralmente no **original em inglês**, com o rótulo `original em inglês; tradutores indisponíveis`. Ela nunca é apresentada como traduzida e nunca mistura blocos/traduções de provedores diferentes.
+
+MyMemory só é aceito com `responseStatus` 200, `quotaFinished` diferente de `true`, conteúdo não vazio e sem sinais de aviso, quota, crédito, limite ou erro. Apertium também rejeita erros e os marcadores `*`, `#` e `@`, que indicam palavra não reconhecida/resposta inadequada. Entidades HTML são decodificadas quando necessário e `@` de textos aceitos é neutralizado para não gerar menções no Discord; os payloads do Discord também usam `allowedMentions: { parse: [] }`.
+
+HTTP 403/429, quota, timeout e falhas de rede são tratados como indisponibilidade, **não como sucesso**. O bot não raspa Google, não tenta contornar 429 e registra somente o provedor/código/motivo técnico (sem texto da frase ou dados sensíveis). Se houver falha, consulte os logs do Render por mensagens `Tradução MyMemory` ou `Tradução Apertium`; o embed/rodapé confirma qual resultado foi usado. APIs públicas podem mudar, limitar uso ou ficar indisponíveis.
 
 ## Capas e imagem de fallback
 
@@ -41,7 +47,7 @@ A capa remota é pesquisada no AniList com timeout. Ela só é usada se o títul
 
 Sem capa, sem correspondência segura, timeout, falha de API ou resposta inválida, o embed usa `attachment://infinity-fallback.jpg` e anexa exclusivamente `assets/infinity-fallback.jpg`, a imagem local fornecida pelo usuário. Ela é apenas a imagem de fallback: o bot não cria nem afirma criar fundo com texto sobreposto.
 
-Capas continuam sujeitas aos direitos de seus titulares e aos termos do AniList; AniList é fonte de URL, não licença de uso. Animechan e MyMemory também possuem seus próprios termos, disponibilidade e limites.
+Capas continuam sujeitas aos direitos de seus titulares e aos termos do AniList; AniList, Animechan, MyMemory e Apertium possuem seus próprios termos, disponibilidade e limites.
 
 ## Deploy no Render (Node)
 
@@ -56,7 +62,7 @@ Tiers que dormem, rede, APIs externas e deploys podem atrasar ou impedir posts; 
 
 ## Testes
 
-A suíte é offline, com fakes: não conecta ao Discord e não consulta APIs reais.
+A suíte é offline, com mocks: não conecta ao Discord e não consulta APIs reais. Ela cobre MyMemory preferido, resposta curta como `Lute! → Seja forte.`, HTML/menções, blocos longos multibyte, 403/429/quota, fallback Apertium via espanhol, erro/marcadores Apertium, ausência de mistura parcial e fallback original, além de envio imediato, agendamento, permissões, deduplicação e capas.
 
 ```bash
 npm ci
@@ -65,5 +71,3 @@ node --check src/index.js
 node --check src/hourly-quotes.js
 node --check src/quote-artwork.js
 ```
-
-Ela cobre envio imediato às `00:15` e o próximo envio às `01:00`, deduplicação concorrente, configuração sem permissão sem envio, estado retornado pela configuração, tradução válida e fallback para original, emissão normal com tradutor indisponível, capas AniList e imagem local de fallback.
