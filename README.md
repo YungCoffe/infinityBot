@@ -1,91 +1,75 @@
-# InfinityBot — InfinityTools
+# InfinityBot — somente consulta de nicks Discord
 
-Bot Node.js para deploy no **Render como Web Service**. O `/painel` usa **Componentes V2**, o banner natalino fornecido em `assets/banner-natalino.jpg` e cinco botões. As respostas são efêmeras no Discord.
+Bot Discord em **Node.js** para publicar no Render como **Web Service**. Este projeto mantém somente o painel natalino de busca/verificação indicativa de usernames Discord. Não usa Docker, banco de dados, arquivo `.env`, conta pessoal, senha ou token de usuário.
 
-Após atualizar, publique `/painel` de novo: mensagens antigas não mudam automaticamente. O bot precisa de permissão para enviar mensagens e anexar arquivos.
+> Depois de atualizar, publique `/painel` novamente: painéis antigos não são alterados automaticamente.
 
-## Painel e privacidade
+## Segurança e limites importantes
 
-Os quatro botões originais e seus IDs foram preservados:
+- O bot usa exclusivamente `DISCORD_TOKEN`, o **token do bot**, configurado como variável secreta de ambiente.
+- Ele **nunca pede, usa ou salva** senha, token, cookie ou qualquer login de conta pessoal.
+- Ele **não altera usernames**, não reserva nomes e não tenta fazer cadastro.
+- “Aparentemente disponível” significa somente que uma resposta válida da rota retornou `taken: false`. Isso não é garantia de disponibilidade absoluta/final e pode mudar a qualquer momento.
+- A verificação usa uma rota não oficial e não autenticada do Discord; ela pode mudar, falhar, responder de forma inesperada ou limitar consultas.
+- Não há tentativa de contornar rate limit, CAPTCHA ou autenticação.
 
-- `panel:people` — perfis fictícios;
-- `panel:cpf` — CPF fictício;
-- `panel:spotify` — links locais para o site;
-- `panel:cards` — cartões fictícios, sem valor.
+## Painel `/painel`
 
-O quinto botão, `names:open` (**Consultar @**), abre um modal privado. Informe o tamanho e o username sem `@`.
+Somente administradores podem publicar o painel. O botão **Encontrar @** abre um modal privado com:
 
-- Aceita apenas tamanho inteiro de **2 a 32** e username de **2 a 32** caracteres: letras minúsculas ASCII, números, `_` e `.`; `..` não é aceito.
-- O tamanho precisa corresponder exatamente ao username. Usernames de um caractere não são permitidos pelo Discord.
-- A consulta envia somente o username informado a `https://discord.com/api/v9/unique-username/username-attempt-unauthed`, por `POST` JSON, **sem token de usuário** e sem cabeçalho `Authorization`.
-- O timeout é 8 segundos. Respostas 429, falhas HTTP/rede, timeout e payload inesperado não são tratados como disponibilidade.
-- O resultado é **indicativo**, privado e não confirma posse, reserva, cadastro ou disponibilidade final. O bot não grava o username em arquivo, banco ou log.
+- **tamanho:** inteiro de 2 a 32;
+- **meta:** 1 a 5 nicks aparentemente disponíveis;
+- **@ opcional:** nick a testar, com ou sem `@`.
 
-> Essa rota é uma integração **não oficial**, observada no cliente do Discord. Ela pode mudar, ficar indisponível ou limitar automação. O projeto não tenta contornar limites, CAPTCHA, autenticação ou controles de acesso. Avalie os termos e permissões aplicáveis antes de produção.
+Quando o campo opcional é preenchido e a meta é **1**, somente esse nick é testado; se estiver em uso, o bot não gera outro. Para metas maiores, ele testa o nick informado primeiro e gera candidatos distintos até alcançar a meta, até uma falha, ou até o máximo de **25 tentativas**.
 
-O cooldown em memória é de 15 segundos por usuário para ações do painel, inclusive cada envio da consulta. Ele reinicia quando o serviço reinicia.
+As consultas são serializadas globalmente e há intervalo mínimo de **2 segundos** entre elas. Também existe cooldown de 15 segundos por pessoa e fila máxima de três lotes. Em HTTP 429, timeout, erro de rede, HTTP ou resposta inválida, o lote para; nenhum item sem resposta válida é tratado como disponível.
 
-## Outras integrações
+## Deploy no Render (Web Service Node)
 
-- **4Devs:** chamadas não oficiais com timeout de 8 segundos. Dados fictícios são enviados apenas na resposta efêmera e não são persistidos.
-- **Spotify:** não usa API; links são montados localmente e não representam promoção, preço ou elegibilidade.
-
-Operadores do Discord, 4Devs, Render, Discord e a infraestrutura de rede podem aplicar as próprias políticas de retenção aos dados que recebem.
-
-## Requisitos e uso local
-
-- Node.js **22 ou superior**
-- Aplicação Discord com os escopos `applications.commands` e `bot`
-- Permissões no canal: enviar mensagens e anexar arquivos
-
-```bash
-npm install
-cp .env.example .env
-export DISCORD_TOKEN='seu_token_do_bot'
-npm start
-```
-
-O projeto não carrega `.env` automaticamente. Configure variáveis no shell ou no gerenciador de segredos. Para registrar `/painel` imediatamente em um servidor de testes, defina `DISCORD_GUILD_ID`. O registro usa `POST` somente para `/painel`, sem apagar outros slash commands.
-
-Nunca envie o token ao Git, Discord ou arquivos ZIP. A conexão real ao Discord não foi feita durante a preparação deste pacote.
-
-## Deploy no Render
-
-1. Envie esta pasta a um repositório Git, sem `.env`, tokens ou `node_modules`.
-2. No Render: **New +** → **Web Service** → conecte o repositório.
-3. Configure:
-   - **Language:** Node
-   - **Build Command:** `npm install`
+1. Extraia o ZIP e envie os arquivos extraídos na raiz do repositório: `package.json`, `package-lock.json`, `src/`, `assets/`, `README.md` e `render.yaml`.
+2. No Render, escolha **New +** → **Web Service** e conecte o repositório.
+3. Selecione runtime **Node** — não Docker.
+4. Configure:
+   - **Build Command:** `npm ci`
    - **Start Command:** `npm start`
-   - **Secret:** `DISCORD_TOKEN`
-   - Opcional: `DISCORD_GUILD_ID` para o servidor de testes
-   - Opcional: Health Check Path: `/healthz`
-4. Faça deploy e confira `Servidor HTTP ativo` e `InfinityBot conectado como ...` nos logs.
+   - **Health Check Path:** `/healthz`
+5. Em **Environment**, crie o segredo `DISCORD_TOKEN` com o token do seu bot.
+6. Faça o deploy. Nunca coloque tokens em Git, ZIP, `.env` ou mensagens.
 
-O servidor escuta em `0.0.0.0` na porta `PORT` do Render (padrão local `10000`). `/` e `/healthz` retornam o estado HTTP e da conexão Discord; HTTP 200 apenas indica que o processo HTTP respondeu.
+A aplicação escuta `0.0.0.0` e `process.env.PORT` (fallback local `10000`). `/` e `/healthz` retornam HTTP 200 mesmo sem `DISCORD_TOKEN`; nesse caso o Discord fica offline, permitindo testar o Web Service com segurança.
 
-Se `RENDER_EXTERNAL_URL` existir (o Render costuma fornecer), o processo faz ping ao próprio `/healthz` a cada 8 minutos. Isto não garante disponibilidade nem acorda um serviço já hibernado. No plano Free, o serviço pode hibernar após inatividade; mensagens do Discord não acordam um Web Service parado. Consulte a política atual do Render.
+O `render.yaml` já descreve o serviço Node, com `npm ci`, `npm start` e health check `/healthz`.
 
-## Testes offline
+## Variáveis de ambiente
+
+| Variável | Obrigatória | Uso |
+| --- | --- | --- |
+| `DISCORD_TOKEN` | Para conectar ao Discord | Token do bot; lido somente do ambiente. |
+| `DISCORD_GUILD_ID` | Não | ID de servidor de teste para registrar `/painel` mais rápido. Sem ela, o comando é global. |
+| `RENDER_EXTERNAL_URL` | Não | URL `https://...onrender.com` para ping periódico opcional. |
+| `PORT` | Não | Definida pelo Render; localmente o padrão é `10000`. |
+
+`.env.example` contém apenas placeholders e o projeto não carrega `.env` automaticamente.
+
+## Uso local e verificações
+
+Requer Node.js 22 ou superior.
 
 ```bash
+npm ci
 npm test
 node --check src/index.js
 node --check src/name-lookup.js
-node --check src/username-check.js
-node --check src/fourdevs.js
+node --check src/username-batch.js
 ```
 
-Os testes não conectam ao Discord, não usam credenciais e usam mocks para todas as consultas externas. Eles cobrem Componentes V2, banner, cinco botões, handlers do modal, privacidade da resposta, validação, timeout/429 e o comportamento existente do painel.
+Teste do HTTP sem token de Discord:
 
-## Estrutura
-
-```text
-src/index.js           Discord, /painel, cooldown e servidor
-src/panel-view.js      painel natalino V2 com cinco botões
-src/name-lookup.js     modal e resposta privada da consulta
-src/username-check.js  validação e cliente não oficial com timeout
-assets/banner-natalino.jpg  banner fornecido para /painel
-src/http-server.js     health server para Render
-.env.example           variáveis sem segredos
+```bash
+PORT=10001 npm start
+# em outro terminal
+curl http://127.0.0.1:10001/healthz
 ```
+
+Os testes são offline e usam mocks: não conectam ao Discord, não usam credenciais e não fazem chamadas externas.
