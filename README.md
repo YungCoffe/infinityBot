@@ -23,7 +23,13 @@ Somente administradores podem publicar o painel. O botão **Encontrar @** abre u
 
 Quando o campo opcional é preenchido e a meta é **1**, somente esse nick é testado; se estiver em uso, o bot não gera outro. Para metas maiores, ele testa o nick informado primeiro e gera candidatos distintos até alcançar a meta, até uma falha, ou até o máximo de **25 tentativas**.
 
-As consultas são serializadas globalmente e há intervalo mínimo de **2 segundos** entre elas. Também existe cooldown de 15 segundos por pessoa e fila máxima de três lotes. Em HTTP 429, timeout, erro de rede, HTTP ou resposta inválida, o lote para; nenhum item sem resposta válida é tratado como disponível.
+As consultas são **serializadas globalmente** e há um intervalo conservador, fixo, de **10 segundos entre o início de quaisquer duas requisições** — inclusive entre lotes, nicks específicos e depois de falhas. A primeira requisição não espera e não há espera extra depois da última. O máximo é **25 tentativas** por busca; só o intervalo pode levar cerca de **4 minutos** (além do tempo de rede), e usuários concorrentes podem demorar mais na fila. Também existe cooldown de 15 segundos por pessoa e fila máxima de três lotes, para permanecer dentro da janela de interação de aproximadamente 15 minutos.
+
+Durante a busca, a resposta privada mostra o estado real da consulta e a barra de tentativas; entre chamadas, informa o intervalo global e a hora relativa da próxima consulta. Atualizações são agregadas e limitadas a no máximo uma edição a cada 5 segundos. Em HTTP 429, timeout, erro de rede, HTTP ou resposta inválida, o lote para; nenhum item sem resposta válida é tratado como disponível.
+
+### Espera visível em HTTP 429
+
+Quando a rota informar `retry_after`/`Retry-After`, a resposta privada mostra uma barra de tempo **real** e o horário relativo nativo do Discord (por exemplo, “em 2 minutos”). A mensagem é atualizada no máximo a cada 15 segundos, até 60 edições, e **não faz novas consultas**: ela apenas exibe o prazo já retornado. Esperas longas (acima de 14 minutos) ficam apenas com o horário relativo para não depender da validade da interação. Se ocorrer outro 429 em uma nova tentativa, o novo prazo prevalece para aquela nova resposta. O fim do relógio não significa que um nick está disponível nem garante que a próxima tentativa será aceita; o bot não retoma o lote automaticamente e reiniciar o bot encerra temporizadores pendentes.
 
 ## Deploy no Render (Web Service Node)
 
