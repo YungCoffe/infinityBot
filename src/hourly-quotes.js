@@ -4,6 +4,8 @@ const path = require('node:path');
 const API_URL = 'https://api.animechan.io/v1/quotes/random';
 const TRANSLATE_URL = 'https://api.mymemory.translated.net/get';
 const APERTIUM_URL = 'https://apertium.org/apy/translate';
+const DEEPL_FREE_URL = 'https://api-free.deepl.com/v2/translate';
+const DEEPL_PRO_URL = 'https://api.deepl.com/v2/translate';
 const TIME_ZONE = 'America/Sao_Paulo';
 const CONFIG_MARKER = 'infinitybot-hourly-quotes-config:v1';
 const POST_MARKER = 'infinitybot-hourly-quote:v1';
@@ -20,7 +22,10 @@ function hourKey(now) { const p = zonedParts(now); return `${p.year}-${p.month}-
 function displayTime(now) { const p = zonedParts(now); return `${p.day}/${p.month}/${p.year} ${p.hour}:${p.minute}`; }
 function normalize(v) { return String(v || '').normalize('NFKC').replace(/\s+/g, ' ').trim().toLowerCase(); }
 function hashQuote(q) { return crypto.createHash('sha256').update(`${normalize(q.content)}\n${normalize(q.anime)}\n${normalize(q.character)}`).digest('hex').slice(0, 24); }
-function providerLabel(provider) { return provider === 'apertium' ? 'tradução automática Apertium, via espanhol' : 'tradução automática MyMemory'; }
+function providerLabel(provider) {
+  if (provider === 'deepl') return 'tradução automática DeepL';
+  return provider === 'apertium' ? 'tradução automática Apertium, via espanhol' : 'tradução automática MyMemory';
+}
 function postFooter(key, hash, provider = null, manual = false) { return `${manual ? MANUAL_POST_MARKER : POST_MARKER} | ${manual ? 'manual' : key} | quote:${hash} | ${provider ? providerLabel(provider) : 'original em inglês (tradutores indisponíveis)'}`; }
 function configFooter(id) { return `${CONFIG_MARKER} | channel:${id}`; }
 function safe(v, max) { return String(v || '').replace(/[\u0000-\u001F\u007F]/g, '').replace(/@(?!\u200b)/g, '@\u200b').trim().slice(0, max); }
@@ -89,6 +94,43 @@ function retryAfterMs(value, nowMs = Date.now()) {
   return Number.isFinite(timestamp) ? Math.max(0, timestamp - nowMs) : null;
 }
 function createTranslationState() { return { myMemoryCooldownUntil: 0 }; }
+function deeplPlan(value = process.env.DEEPL_PLAN) {
+  // Only explicit built-in overrides are accepted; anything else uses safe key-based selection.
+  const plan = String(value || '').trim().toLowerCase();
+  return plan === 'free' || plan === 'pro' ? plan : 'auto';
+}
+function deeplUrl(apiKey = '', plan = process.env.DEEPL_PLAN) {
+  const override = deeplPlan(plan);
+  // Legacy Free keys documented by DeepL end in :fx. Developer-key host details are not asserted here.
+  if (override === 'free') return DEEPL_FREE_URL;
+  if (override === 'pro') return DEEPL_PRO_URL;
+  return String(apiKey || '').trim().endsWith(':fx') ? DEEPL_FREE_URL : DEEPL_PRO_URL;
+}
+function deeplTranslation(body, sourceText) {
+  const raw = Array.isArray(body?.translations) ? body.translations[0]?.text : undefined;
+  const decision = translationDecision(body, sourceText, raw);
+  return decision.accepted ? decision.text : null;
+}
+async function translateDeepL(text, fetchImpl = global.fetch, log = console, options = {}) {
+  const startedAt = Date.now();
+  const apiKey = String(options.deeplApiKey === undefined ? process.env.DEEPL_API_KEY || '' : options.deeplApiKey || '').trim();
+  const plan = options.deeplPlan === undefined ? process.env.DEEPL_PLAN : options.deeplPlan;
+  if (!apiKey) { translationLog(log, 'deepl', 'not-configured', startedAt); return null; }
+  try {
+    const r = await fetchWithTimeout(fetchImpl, deeplUrl(apiKey, plan), {
+      method: 'POST',
+      headers: { accept: 'application/json', 'content-type': 'application/json', 'DeepL-Auth-Key': apiKey },
+      body: JSON.stringify({ text: [String(text || '')], source_lang: 'EN', target_lang: 'PT-BR' })
+    });
+    // Limits and all HTTP/network failures deliberately fall through once; no retries around quota/rate limits.
+    if (!r.ok || r.status === 429 || r.status === 456) { translationLog(log, 'deepl', `http-${r.status}`, startedAt); return null; }
+    let body;
+    try { body = await r.json(); } catch { translationLog(log, 'deepl', 'invalid-response', startedAt); return null; }
+    const translated = deeplTranslation(body, text);
+    if (!translated) { translationLog(log, 'deepl', 'invalid-response', startedAt); return null; }
+    translationLog(log, 'deepl', 'success', startedAt); return translated;
+  } catch (error) { translationLog(log, 'deepl', error?.name === 'AbortError' ? 'timeout' : 'network-error', startedAt); return null; }
+}
 async function translateMyMemory(text, fetchImpl = global.fetch, log = console, options = {}) {
   const chunks = splitTextForMyMemory(text); const startedAt = Date.now();
   const state = options.state || createTranslationState();
@@ -134,7 +176,9 @@ async function apertiumStep(text, langpair, fetchImpl, log, step) {
 }
 async function translateApertium(text, fetchImpl = global.fetch, log = console) { const spanish = await apertiumStep(text, 'eng|spa', fetchImpl, log, '1/2'); if (!spanish) return null; return apertiumStep(spanish, 'spa|por_BR', fetchImpl, log, '2/2'); }
 async function translateQuote(text, fetchImpl = global.fetch, log = console, options = {}) {
-  const startedAt = Date.now(); const myMemory = await translateMyMemory(text, fetchImpl, log, options);
+  const startedAt = Date.now(); const deepl = await translateDeepL(text, fetchImpl, log, options);
+  if (deepl) { translationLog(log, 'deepl', 'final-success', startedAt); return { text: deepl, provider: 'deepl' }; }
+  const myMemory = await translateMyMemory(text, fetchImpl, log, options);
   if (myMemory) { translationLog(log, 'mymemory', 'final-success', startedAt); return { text: myMemory, provider: 'mymemory' }; }
   const apertium = await translateApertium(text, fetchImpl, log);
   if (apertium) { translationLog(log, 'apertium', 'final-success', startedAt); return { text: apertium, provider: 'apertium' }; }
@@ -162,4 +206,4 @@ function createHourlyQuoteManager({ client, fetchImpl = global.fetch, now = () =
   async function tick() { if (running) return { status: 'running' }; const current = now(), minute = Number(zonedParts(current).minute); if (minute !== 0 && minute !== 1) return { status: 'outside-window' }; if (current.getTime() < blockedUntil) return { status: 'source-cooldown' }; running = true; try { const results = []; for (const channel of channels.values()) { const result = await postToChannel(channel, current); results.push(result); if (result.status === 'rate-limited') break; } return { status: 'done', results }; } finally { running = false; } }
   return { channels, configure, stop, restore, tick, sendNow, status: () => [...channels.keys()] };
 }
-module.exports = { API_URL, TRANSLATE_URL, APERTIUM_URL, TIME_ZONE, CONFIG_MARKER, POST_MARKER, MANUAL_POST_MARKER, FALLBACK_NAME, FALLBACK_PATH, MAX_ATTEMPTS, DAY_REQUEST_LIMIT, HISTORY_WINDOW_DAYS, NETWORK_TIMEOUT_MS, MYMEMORY_MAX_BYTES, RateLimitError, isValidMyMemoryContactEmail, myMemoryUrl, retryAfterMs, createTranslationState, zonedParts, hourKey, displayTime, hashQuote, parseQuote, isMotivational, fetchWithTimeout, fetchQuote, decodeHtmlEntities, splitTextForMyMemory, apiErrorCategory, isPlausibleSharedTerm, translationDecision, isUsableTranslation, translateMyMemory, translateApertium, translateQuote, translatePt, providerLabel, requiredPermissions, hasPermissions, postInfo, scanHistory, buildEmbed, makeMessage, findConfigInGuilds, createHourlyQuoteManager };
+module.exports = { API_URL, TRANSLATE_URL, APERTIUM_URL, DEEPL_FREE_URL, DEEPL_PRO_URL, TIME_ZONE, CONFIG_MARKER, POST_MARKER, MANUAL_POST_MARKER, FALLBACK_NAME, FALLBACK_PATH, MAX_ATTEMPTS, DAY_REQUEST_LIMIT, HISTORY_WINDOW_DAYS, NETWORK_TIMEOUT_MS, MYMEMORY_MAX_BYTES, RateLimitError, isValidMyMemoryContactEmail, myMemoryUrl, retryAfterMs, createTranslationState, deeplPlan, deeplUrl, deeplTranslation, translateDeepL, zonedParts, hourKey, displayTime, hashQuote, parseQuote, isMotivational, fetchWithTimeout, fetchQuote, decodeHtmlEntities, splitTextForMyMemory, apiErrorCategory, isPlausibleSharedTerm, translationDecision, isUsableTranslation, translateMyMemory, translateApertium, translateQuote, translatePt, providerLabel, requiredPermissions, hasPermissions, postInfo, scanHistory, buildEmbed, makeMessage, findConfigInGuilds, createHourlyQuoteManager };
