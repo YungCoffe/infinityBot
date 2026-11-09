@@ -1,99 +1,91 @@
 # InfinityBot — InfinityTools
 
-Bot Discord em Node.js para deploy no **Render como Web Service**. O bot não pede, persiste ou registra no projeto os dados retornados pelos geradores; as respostas do painel são efêmeras no Discord.
+Bot Node.js para deploy no **Render como Web Service**. O `/painel` usa **Componentes V2**, o banner natalino fornecido em `assets/banner-natalino.jpg` e cinco botões. As respostas são efêmeras no Discord.
 
-O painel usa Componentes V2 do Discord, tema de Natal, a imagem fornecida em `assets/banner-natal.jpg` e quatro botões. Após atualizar o bot, execute `/painel` novamente para publicar a versão nova; mensagens antigas não são alteradas automaticamente. O bot precisa de permissão para enviar mensagens e anexar arquivos no canal.
+Após atualizar, publique `/painel` de novo: mensagens antigas não mudam automaticamente. O bot precisa de permissão para enviar mensagens e anexar arquivos.
 
-## Recursos e limites
+## Painel e privacidade
 
-- `/painel` é restrito a administradores e publica botões persistentes. O registro usa `POST` somente para esse comando, sem apagar outros slash commands da aplicação.
-- Há limite de **15 segundos por usuário** entre usos do painel e máximo de **5** links Spotify por resposta. O limite é só em memória e reinicia com o processo.
-- Todas as respostas acionadas pelos botões são **efêmeras**.
-- **CPF:** faz `POST` diretamente a `https://www.4devs.com.br/ferramentas_online.php` com `acao=gerar_cpf`, `pontuacao=S` e `cpf_estado=`.
-- **Pessoas:** faz uma única chamada direta com `acao=gerar_pessoa`, `sexo=I`, `pontuacao=S`, `idade=`, `cep_estado=`, `cep_cidade=` e `txt_qtde=1`. O campo `senha` retornado pelo site não é exibido.
-- **Cartões:** faz uma única chamada direta ao gerador público com `acao=gerar_cc`, `pontuacao=S` e `bandeira=master`; extrai número, validade e código de segurança da resposta HTML. **Cartões fictícios, sem valor.**
-- **Spotify:** não há integração/API neste bot. Os links são montados **localmente** segundo o padrão client-side do site e apontam para [Spotify Premium](https://www.spotify.com/br-pt/premium/). Não vêm do Spotify e não representam promoção, preço ou elegibilidade.
-- Cada chamada externa tem timeout de 8 segundos. HTTP 429 recebe uma mensagem específica; falhas de rede, timeout e respostas fora do formato são tratadas sem exibir corpo da resposta ou segredos.
+Os quatro botões originais e seus IDs foram preservados:
 
-> A integração 4Devs é **não oficial**. Ela usa endpoints internos observados no site público, pode mudar ou ser limitada sem aviso e não há confirmação de permissão do 4Devs para este uso automatizado. O projeto não tenta burlar bloqueios, limites, CAPTCHAs ou controles de acesso. Avalie permissões, termos e adequação antes de colocar em produção.
+- `panel:people` — perfis fictícios;
+- `panel:cpf` — CPF fictício;
+- `panel:spotify` — links locais para o site;
+- `panel:cards` — cartões fictícios, sem valor.
 
-## Privacidade
+O quinto botão, `names:open` (**Consultar @**), abre um modal privado. Informe o tamanho e o username sem `@`.
 
-O processo não grava CPFs, pessoas ou cartões em arquivo, banco, cache ou logs do aplicativo. O dado é transmitido ao Discord apenas na resposta efêmera da interação e ao 4Devs apenas nos parâmetros fixos acima. Operadores do Discord, 4Devs, Render e a infraestrutura de rede podem aplicar suas próprias políticas de retenção.
+- Aceita apenas tamanho inteiro de **2 a 32** e username de **2 a 32** caracteres: letras minúsculas ASCII, números, `_` e `.`; `..` não é aceito.
+- O tamanho precisa corresponder exatamente ao username. Usernames de um caractere não são permitidos pelo Discord.
+- A consulta envia somente o username informado a `https://discord.com/api/v9/unique-username/username-attempt-unauthed`, por `POST` JSON, **sem token de usuário** e sem cabeçalho `Authorization`.
+- O timeout é 8 segundos. Respostas 429, falhas HTTP/rede, timeout e payload inesperado não são tratados como disponibilidade.
+- O resultado é **indicativo**, privado e não confirma posse, reserva, cadastro ou disponibilidade final. O bot não grava o username em arquivo, banco ou log.
 
-## Requisitos
+> Essa rota é uma integração **não oficial**, observada no cliente do Discord. Ela pode mudar, ficar indisponível ou limitar automação. O projeto não tenta contornar limites, CAPTCHA, autenticação ou controles de acesso. Avalie os termos e permissões aplicáveis antes de produção.
 
-- Node.js 22 ou superior
-- Aplicação/bot no [Discord Developer Portal](https://discord.com/developers/applications)
-- Escopos de convite: `applications.commands` e `bot`. Permissões no canal: enviar mensagens e anexar arquivos.
+O cooldown em memória é de 15 segundos por usuário para ações do painel, inclusive cada envio da consulta. Ele reinicia quando o serviço reinicia.
 
-## Instalação local
+## Outras integrações
+
+- **4Devs:** chamadas não oficiais com timeout de 8 segundos. Dados fictícios são enviados apenas na resposta efêmera e não são persistidos.
+- **Spotify:** não usa API; links são montados localmente e não representam promoção, preço ou elegibilidade.
+
+Operadores do Discord, 4Devs, Render, Discord e a infraestrutura de rede podem aplicar as próprias políticas de retenção aos dados que recebem.
+
+## Requisitos e uso local
+
+- Node.js **22 ou superior**
+- Aplicação Discord com os escopos `applications.commands` e `bot`
+- Permissões no canal: enviar mensagens e anexar arquivos
 
 ```bash
 npm install
 cp .env.example .env
-```
-
-O projeto não carrega `.env` automaticamente. Defina a variável no shell ou no gerenciador de segredos:
-
-```bash
 export DISCORD_TOKEN='seu_token_do_bot'
 npm start
 ```
 
-Opcionalmente, para registrar `/painel` só em um servidor de testes:
+O projeto não carrega `.env` automaticamente. Configure variáveis no shell ou no gerenciador de segredos. Para registrar `/painel` imediatamente em um servidor de testes, defina `DISCORD_GUILD_ID`. O registro usa `POST` somente para `/painel`, sem apagar outros slash commands.
 
-```bash
-export DISCORD_GUILD_ID='id_do_servidor_de_testes'
-```
+Nunca envie o token ao Git, Discord ou arquivos ZIP. A conexão real ao Discord não foi feita durante a preparação deste pacote.
 
-Nunca envie token ao Git ou ao Discord. O bot registra `/painel` após conectar. **A conexão real ao Discord não foi testada neste ambiente**, portanto confirme permissões, token e logs no seu servidor.
+## Deploy no Render
 
-## Deploy no Render (Web Service)
-
-1. Envie o projeto a um repositório Git, sem `.env`, tokens ou `node_modules`.
-2. No Render, escolha **New +** → **Web Service** e conecte o repositório.
+1. Envie esta pasta a um repositório Git, sem `.env`, tokens ou `node_modules`.
+2. No Render: **New +** → **Web Service** → conecte o repositório.
 3. Configure:
-   - **Language:** `Node`
+   - **Language:** Node
    - **Build Command:** `npm install`
    - **Start Command:** `npm start`
-   - **Environment Variable (Secret):** `DISCORD_TOKEN`
-   - Opcional: `DISCORD_GUILD_ID` para o servidor de testes.
-   - Opcional: **Health Check Path** `/healthz`.
-4. Faça o deploy e confira os logs para `Servidor HTTP ativo` e `InfinityBot conectado como ...`.
+   - **Secret:** `DISCORD_TOKEN`
+   - Opcional: `DISCORD_GUILD_ID` para o servidor de testes
+   - Opcional: Health Check Path: `/healthz`
+4. Faça deploy e confira `Servidor HTTP ativo` e `InfinityBot conectado como ...` nos logs.
 
-O servidor escuta em `0.0.0.0` na porta fornecida em `PORT` pelo Render (padrão local: `10000`). As rotas `/` e `/healthz` mostram se o processo HTTP responde e se o bot está conectado ao Discord. HTTP 200 significa que o processo está respondendo, não garante que o bot esteja conectado.
+O servidor escuta em `0.0.0.0` na porta `PORT` do Render (padrão local `10000`). `/` e `/healthz` retornam o estado HTTP e da conexão Discord; HTTP 200 apenas indica que o processo HTTP respondeu.
 
-**Ping automático:** o serviço faz uma requisição ao próprio `/healthz` a cada 8 minutos enquanto está rodando, usando `RENDER_EXTERNAL_URL`, que o Render fornece automaticamente. Fora do Render, se essa variável não existir, o ping fica desativado. Ele apenas tenta manter o serviço ativo e não garante disponibilidade.
-
-**Plano Free:** o Render pode hibernar o serviço após 15 minutos sem tráfego de entrada. Se o serviço já tiver parado, ele não consegue enviar o próprio ping para acordar; é necessária uma requisição externa. Mensagens do Discord não acordam o Web Service. Nos deploys pode haver sobreposição temporária de processos. Consulte os limites atuais do Render.
+Se `RENDER_EXTERNAL_URL` existir (o Render costuma fornecer), o processo faz ping ao próprio `/healthz` a cada 8 minutos. Isto não garante disponibilidade nem acorda um serviço já hibernado. No plano Free, o serviço pode hibernar após inatividade; mensagens do Discord não acordam um Web Service parado. Consulte a política atual do Render.
 
 ## Testes offline
 
 ```bash
 npm test
 node --check src/index.js
+node --check src/name-lookup.js
+node --check src/username-check.js
 node --check src/fourdevs.js
 ```
 
-Os testes usam `node:test` com mocks: conferem a estrutura V2, o banner e os botões, parâmetros das chamadas 4Devs, parsing de cartão, HTTP 429, limites e Spotify local. Não conectam ao Discord, não usam credenciais nem colocam dados gerados nos arquivos.
+Os testes não conectam ao Discord, não usam credenciais e usam mocks para todas as consultas externas. Eles cobrem Componentes V2, banner, cinco botões, handlers do modal, privacidade da resposta, validação, timeout/429 e o comportamento existente do painel.
 
 ## Estrutura
 
 ```text
-src/index.js       Discord, /painel, limites e respostas efêmeras
-src/panel-view.js  conteúdo do painel natalino
-assets/banner-natal.jpg imagem do painel
-src/http-server.js servidor HTTP para o Render
-src/self-ping.js   ping automático a cada 8 minutos
-src/fourdevs.js    cliente não oficial 4Devs, timeout e parsing
-src/utils.js       Spotify local e apresentação segura
-test/utils.test.js testes offline com mocks
-.env.example       nomes de variáveis, sem segredos
+src/index.js           Discord, /painel, cooldown e servidor
+src/panel-view.js      painel natalino V2 com cinco botões
+src/name-lookup.js     modal e resposta privada da consulta
+src/username-check.js  validação e cliente não oficial com timeout
+assets/banner-natalino.jpg  banner fornecido para /painel
+src/http-server.js     health server para Render
+.env.example           variáveis sem segredos
 ```
-
-## Lacunas conhecidas
-
-- Os endpoints internos podem mudar, negar automação ou retornar formato diferente; nesse caso o botão informa falha e não há fallback que tente contornar controles.
-- O cooldown é local ao processo. Em múltiplas instâncias seria necessário um rate-limit compartilhado, sem armazenar conteúdo gerado.
-- Não foi feita conexão real ao Discord neste ambiente.

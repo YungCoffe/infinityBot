@@ -1,8 +1,8 @@
 {
   "name": "infinitybot",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
-  "description": "Bot Discord com painel efêmero e integração não oficial limitada ao 4Devs",
+  "description": "Bot Discord com painel V2, geradores fictícios e consulta indicativa de username",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
