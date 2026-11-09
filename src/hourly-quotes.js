@@ -70,16 +70,45 @@ function translationLog(log, provider, category, startedAt, block = null, extra 
   const blockText = block === null ? '' : ` bloco=${block}`;
   log.info?.(`Frases tradução provider=${provider} status=${category}${blockText} duracao_ms=${duration}${extra}`);
 }
-async function translateMyMemory(text, fetchImpl = global.fetch, log = console) {
+function isValidMyMemoryContactEmail(value) {
+  const email = String(value || '').trim();
+  return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+function myMemoryUrl(text, contactEmail = process.env.MYMEMORY_CONTACT_EMAIL) {
+  const url = new URL(TRANSLATE_URL);
+  const params = new URLSearchParams({ q: text, langpair: 'en|pt-BR' });
+  if (isValidMyMemoryContactEmail(contactEmail)) params.set('de', String(contactEmail).trim());
+  url.search = params.toString();
+  return url.toString();
+}
+function retryAfterMs(value, nowMs = Date.now()) {
+  const raw = String(value || '').trim();
+  if (!raw) return null;
+  if (/^\d+(?:\.\d+)?$/.test(raw)) return Math.max(0, Math.ceil(Number(raw) * 1000));
+  const timestamp = Date.parse(raw);
+  return Number.isFinite(timestamp) ? Math.max(0, timestamp - nowMs) : null;
+}
+function createTranslationState() { return { myMemoryCooldownUntil: 0 }; }
+async function translateMyMemory(text, fetchImpl = global.fetch, log = console, options = {}) {
   const chunks = splitTextForMyMemory(text); const startedAt = Date.now();
+  const state = options.state || createTranslationState();
+  const nowMs = options.nowMs || (() => Date.now());
+  const contactEmail = options.contactEmail === undefined ? process.env.MYMEMORY_CONTACT_EMAIL : options.contactEmail;
   if (!chunks.length) { translationLog(log, 'mymemory', 'invalid-source', startedAt); return null; }
+  if (nowMs() < state.myMemoryCooldownUntil) { translationLog(log, 'mymemory', 'cooldown', startedAt); return null; }
   const out = [];
   for (let index = 0; index < chunks.length; index++) {
     const chunk = chunks[index]; const block = `${index + 1}/${chunks.length}`; const attemptAt = Date.now();
+    if (nowMs() < state.myMemoryCooldownUntil) { translationLog(log, 'mymemory', 'cooldown', attemptAt, block); return null; }
     try {
-      const url = `${TRANSLATE_URL}?q=${encodeURIComponent(chunk)}&langpair=en|pt-BR`;
-      const r = await fetchWithTimeout(fetchImpl, url, { headers: { accept: 'application/json' } });
-      if (!r.ok || r.status === 429) { translationLog(log, 'mymemory', `http-${r.status}`, attemptAt, block); return null; }
+      const r = await fetchWithTimeout(fetchImpl, myMemoryUrl(chunk, contactEmail), { headers: { accept: 'application/json' } });
+      if (r.status === 429) {
+        const cooldownMs = retryAfterMs(r.headers?.get?.('retry-after'), nowMs());
+        if (cooldownMs !== null) state.myMemoryCooldownUntil = Math.max(state.myMemoryCooldownUntil, nowMs() + cooldownMs);
+        translationLog(log, 'mymemory', 'http-429', attemptAt, block, cooldownMs === null ? '' : ` cooldown_ms=${cooldownMs}`);
+        return null;
+      }
+      if (!r.ok) { translationLog(log, 'mymemory', `http-${r.status}`, attemptAt, block); return null; }
       const body = await r.json(); const decision = translationDecision(body, chunk);
       translationLog(log, 'mymemory', decision.category, attemptAt, block);
       if (!decision.accepted) return null;
@@ -104,14 +133,14 @@ async function apertiumStep(text, langpair, fetchImpl, log, step) {
   } catch (error) { translationLog(log, 'apertium', error?.name === 'AbortError' ? 'timeout' : 'network-error', startedAt, step); return null; }
 }
 async function translateApertium(text, fetchImpl = global.fetch, log = console) { const spanish = await apertiumStep(text, 'eng|spa', fetchImpl, log, '1/2'); if (!spanish) return null; return apertiumStep(spanish, 'spa|por_BR', fetchImpl, log, '2/2'); }
-async function translateQuote(text, fetchImpl = global.fetch, log = console) {
-  const startedAt = Date.now(); const myMemory = await translateMyMemory(text, fetchImpl, log);
+async function translateQuote(text, fetchImpl = global.fetch, log = console, options = {}) {
+  const startedAt = Date.now(); const myMemory = await translateMyMemory(text, fetchImpl, log, options);
   if (myMemory) { translationLog(log, 'mymemory', 'final-success', startedAt); return { text: myMemory, provider: 'mymemory' }; }
   const apertium = await translateApertium(text, fetchImpl, log);
   if (apertium) { translationLog(log, 'apertium', 'final-success', startedAt); return { text: apertium, provider: 'apertium' }; }
   translationLog(log, 'none', 'final-original', startedAt); return null;
 }
-async function translatePt(text, fetchImpl = global.fetch, log = console) { return (await translateQuote(text, fetchImpl, log))?.text || null; }
+async function translatePt(text, fetchImpl = global.fetch, log = console, options = {}) { return (await translateQuote(text, fetchImpl, log, options))?.text || null; }
 function requiredPermissions(manage = false) { const base = ['ViewChannel', 'ReadMessageHistory', 'SendMessages', 'EmbedLinks', 'AttachFiles']; return manage ? [...base, 'ManageMessages'] : base; }
 function hasPermissions(channel, user, manage = false) { const p = channel.permissionsFor?.(user); return Boolean(p && requiredPermissions(manage).every(x => p.has(x))); }
 function postInfo(m, botId) { if (m?.author?.id !== botId) return null; const footer = m?.embeds?.[0]?.footer?.text || ''; const scheduled = footer.match(/infinitybot-hourly-quote:v1 \| (\d{4}-\d\d-\d\d\+\d\d) \| quote:([a-f0-9]{24})/i); if (scheduled) return { kind: 'scheduled', key: scheduled[1], hash: scheduled[2].toLowerCase() }; const manual = footer.match(/infinitybot-manual-quote:v1 \| manual \| quote:([a-f0-9]{24})/i); return manual ? { kind: 'manual', key: null, hash: manual[1].toLowerCase() } : null; }
@@ -120,11 +149,11 @@ function buildEmbed(quote, now, hash, text, artwork = null, provider = null, man
 function makeMessage(quote, now, hash, text, artwork, provider = 'mymemory', manual = false) { const payload = { embeds: [buildEmbed(quote, now, hash, text, artwork, provider, manual)], allowedMentions: { parse: [] } }; if (!artwork?.imageUrl) payload.files = [{ attachment: FALLBACK_PATH, name: FALLBACK_NAME }]; return payload; }
 async function findConfigInGuilds(client, log = console) { const found = []; for (const guild of client.guilds.cache.values()) { let chans; try { chans = await guild.channels.fetch(); } catch (e) { log.warn?.(`Frases: canais não lidos em ${guild.id}: ${e.message}`); continue; } for (const channel of chans.values()) { if (!channel?.isTextBased?.() || !channel.messages?.fetchPinned) continue; try { for (const msg of (await channel.messages.fetchPinned()).values()) if (msg.author?.id === client.user.id && (msg.embeds?.[0]?.footer?.text || '').startsWith(CONFIG_MARKER)) found.push(channel.id); } catch (e) { log.warn?.(`Frases: pins não lidos em ${channel.id}: ${e.message}`); } } } return [...new Set(found)]; }
 function createHourlyQuoteManager({ client, fetchImpl = global.fetch, now = () => new Date(), log = console, artwork = null }) {
-  const channels = new Map(), channelLocks = new Map(); let running = false, blockedUntil = 0, day = '', apiCount = 0;
+  const channels = new Map(), channelLocks = new Map(), translationState = createTranslationState(); let running = false, blockedUntil = 0, day = '', apiCount = 0;
   const remember = c => channels.set(c.id, c);
   async function locked(channelId, work) { const previous = channelLocks.get(channelId) || Promise.resolve(); let release; const current = new Promise(resolve => { release = resolve; }); const queued = previous.then(() => current); channelLocks.set(channelId, queued); await previous; try { return await work(); } finally { release(); if (channelLocks.get(channelId) === queued) channelLocks.delete(channelId); } }
   async function pick(history) { const ld = hourKey(now()).slice(0, 10); if (day !== ld) { day = ld; apiCount = 0; } for (let i = 0; i < MAX_ATTEMPTS; i++) { if (apiCount >= DAY_REQUEST_LIMIT) throw new Error('Limite local diário Animechan atingido'); apiCount++; const q = await fetchQuote(fetchImpl); if (q && isMotivational(q) && !history.hashes.has(hashQuote(q))) return q; } return null; }
-  async function postToChannelUnlocked(channel, current, { manual = false } = {}) { const startedAt = Date.now(); const mode = manual ? 'manual' : 'scheduled'; const finish = result => { log.info?.(`Frases publicação canal=${channel.id} modo=${mode} status=${result.status} duracao_ms=${Math.max(0, Date.now() - startedAt)}`); return result; }; log.info?.(`Frases publicação canal=${channel.id} modo=${mode} status=attempt`); if (!hasPermissions(channel, client.user)) return finish({ channelId: channel.id, status: 'missing-permissions' }); if (current.getTime() < blockedUntil) return finish({ channelId: channel.id, status: 'source-cooldown' }); try { const h = await scanHistory(channel, client.user.id, hourKey(current), current); if (!manual && h.found) return finish({ channelId: channel.id, status: 'already-posted' }); if (!h.complete) return finish({ channelId: channel.id, status: 'history-incomplete', reason: h.reason }); const quote = await pick(h); if (!quote) return finish({ channelId: channel.id, status: 'no-suitable-source' }); const translation = await translateQuote(quote.content, fetchImpl, log); let art = null; if (artwork) try { art = await artwork({ quote: quote.content, anime: quote.anime, character: quote.character, hora: displayTime(current) }); } catch (e) { log.warn?.(`Frases capa canal=${channel.id} status=unavailable categoria=${e.code || e.name || 'error'}`); } await channel.send(makeMessage(quote, current, hashQuote(quote), translation?.text || quote.content, art, translation?.provider || null, manual)); return finish({ channelId: channel.id, status: translation ? 'posted' : 'posted-original', translation: translation?.provider || 'original', artwork: Boolean(art?.imageUrl), fallback: !art?.imageUrl, manual }); } catch (e) { if (e instanceof RateLimitError) { blockedUntil = current.getTime() + e.retryAfterMs; return finish({ channelId: channel.id, status: 'rate-limited' }); } log.error?.(`Frases publicação canal=${channel.id} modo=${mode} status=error categoria=${e.code || e.name || 'Error'}`); return finish({ channelId: channel.id, status: 'error' }); } }
+  async function postToChannelUnlocked(channel, current, { manual = false } = {}) { const startedAt = Date.now(); const mode = manual ? 'manual' : 'scheduled'; const finish = result => { log.info?.(`Frases publicação canal=${channel.id} modo=${mode} status=${result.status} duracao_ms=${Math.max(0, Date.now() - startedAt)}`); return result; }; log.info?.(`Frases publicação canal=${channel.id} modo=${mode} status=attempt`); if (!hasPermissions(channel, client.user)) return finish({ channelId: channel.id, status: 'missing-permissions' }); if (current.getTime() < blockedUntil) return finish({ channelId: channel.id, status: 'source-cooldown' }); try { const h = await scanHistory(channel, client.user.id, hourKey(current), current); if (!manual && h.found) return finish({ channelId: channel.id, status: 'already-posted' }); if (!h.complete) return finish({ channelId: channel.id, status: 'history-incomplete', reason: h.reason }); const quote = await pick(h); if (!quote) return finish({ channelId: channel.id, status: 'no-suitable-source' }); const translation = await translateQuote(quote.content, fetchImpl, log, { state: translationState, nowMs: () => now().getTime() }); let art = null; if (artwork) try { art = await artwork({ quote: quote.content, anime: quote.anime, character: quote.character, hora: displayTime(current) }); } catch (e) { log.warn?.(`Frases capa canal=${channel.id} status=unavailable categoria=${e.code || e.name || 'error'}`); } await channel.send(makeMessage(quote, current, hashQuote(quote), translation?.text || quote.content, art, translation?.provider || null, manual)); return finish({ channelId: channel.id, status: translation ? 'posted' : 'posted-original', translation: translation?.provider || 'original', artwork: Boolean(art?.imageUrl), fallback: !art?.imageUrl, manual }); } catch (e) { if (e instanceof RateLimitError) { blockedUntil = current.getTime() + e.retryAfterMs; return finish({ channelId: channel.id, status: 'rate-limited' }); } log.error?.(`Frases publicação canal=${channel.id} modo=${mode} status=error categoria=${e.code || e.name || 'Error'}`); return finish({ channelId: channel.id, status: 'error' }); } }
   async function postToChannel(channel, current) { return locked(channel.id, () => postToChannelUnlocked(channel, current)); }
   async function sendNow(channel) { return locked(channel.id, () => postToChannelUnlocked(channel, now(), { manual: true })); }
   async function configure(c) { return locked(c.id, async () => { if (!hasPermissions(c, client.user, true)) return { status: 'missing-permissions', required: requiredPermissions(true) }; let msg; try { msg = await c.send({ embeds: [{ color: 0x1B5E20, title: '🎄 Frases horárias ativadas', description: 'Configuração persistente do InfinityBot. Uma tentativa de envio será feita agora e depois nas horas cheias.', fields: [{ name: 'Fuso', value: TIME_ZONE }, { name: 'Permissões necessárias', value: requiredPermissions(true).join(', ') }], footer: { text: configFooter(c.id) } }], allowedMentions: { parse: [] } }); await msg.pin(); } catch (error) { log.error?.(`Frases: configuração não salva em ${c.id}: ${error.message}`); return { status: 'configuration-failed' }; } remember(c); const initial = await postToChannelUnlocked(c, now()); return { status: 'configured', messageId: msg.id, initial }; }); }
@@ -133,4 +162,4 @@ function createHourlyQuoteManager({ client, fetchImpl = global.fetch, now = () =
   async function tick() { if (running) return { status: 'running' }; const current = now(), minute = Number(zonedParts(current).minute); if (minute !== 0 && minute !== 1) return { status: 'outside-window' }; if (current.getTime() < blockedUntil) return { status: 'source-cooldown' }; running = true; try { const results = []; for (const channel of channels.values()) { const result = await postToChannel(channel, current); results.push(result); if (result.status === 'rate-limited') break; } return { status: 'done', results }; } finally { running = false; } }
   return { channels, configure, stop, restore, tick, sendNow, status: () => [...channels.keys()] };
 }
-module.exports = { API_URL, TRANSLATE_URL, APERTIUM_URL, TIME_ZONE, CONFIG_MARKER, POST_MARKER, MANUAL_POST_MARKER, FALLBACK_NAME, FALLBACK_PATH, MAX_ATTEMPTS, DAY_REQUEST_LIMIT, HISTORY_WINDOW_DAYS, NETWORK_TIMEOUT_MS, MYMEMORY_MAX_BYTES, RateLimitError, zonedParts, hourKey, displayTime, hashQuote, parseQuote, isMotivational, fetchWithTimeout, fetchQuote, decodeHtmlEntities, splitTextForMyMemory, apiErrorCategory, isPlausibleSharedTerm, translationDecision, isUsableTranslation, translateMyMemory, translateApertium, translateQuote, translatePt, providerLabel, requiredPermissions, hasPermissions, postInfo, scanHistory, buildEmbed, makeMessage, findConfigInGuilds, createHourlyQuoteManager };
+module.exports = { API_URL, TRANSLATE_URL, APERTIUM_URL, TIME_ZONE, CONFIG_MARKER, POST_MARKER, MANUAL_POST_MARKER, FALLBACK_NAME, FALLBACK_PATH, MAX_ATTEMPTS, DAY_REQUEST_LIMIT, HISTORY_WINDOW_DAYS, NETWORK_TIMEOUT_MS, MYMEMORY_MAX_BYTES, RateLimitError, isValidMyMemoryContactEmail, myMemoryUrl, retryAfterMs, createTranslationState, zonedParts, hourKey, displayTime, hashQuote, parseQuote, isMotivational, fetchWithTimeout, fetchQuote, decodeHtmlEntities, splitTextForMyMemory, apiErrorCategory, isPlausibleSharedTerm, translationDecision, isUsableTranslation, translateMyMemory, translateApertium, translateQuote, translatePt, providerLabel, requiredPermissions, hasPermissions, postInfo, scanHistory, buildEmbed, makeMessage, findConfigInGuilds, createHourlyQuoteManager };
