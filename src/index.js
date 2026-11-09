@@ -15,7 +15,8 @@ const path = require('node:path');
 const token = process.env.DISCORD_TOKEN;
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const cooldowns = new Map();
-const COOLDOWN_MS = 15_000;
+// Evita reenvios repetidos do mesmo usuário antes de entrarem na fila global.
+const COOLDOWN_MS = 30_000;
 
 const panelCommand = new SlashCommandBuilder()
   .setName('painel')

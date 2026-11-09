@@ -1,7 +1,7 @@
 'use strict';
 
 const { checkUsername, UsernameCheckError } = require('./username-check');
-const { UsernameBatchChecker, MAX_ATTEMPTS_PER_REQUEST } = require('./username-batch');
+const { UsernameBatchChecker, MAX_ATTEMPTS_PER_REQUEST, INTERACTION_DEADLINE_MS } = require('./username-batch');
 const { countdownView, isLongWait, startRateLimitCountdown } = require('./rate-limit-countdown');
 const { createLiveProgress } = require('./live-progress');
 
@@ -47,6 +47,7 @@ function formatUsernameBatchResult(batch, { nowMs = Date.now(), countdownContent
     if (isLongWait(retryAtMs - nowMs)) lines.push('Espera longa: para não depender da validade desta interação, a mensagem mantém o horário relativo, mas não ficará sendo editada.');
     lines.push('A consulta foi interrompida; resultados pendentes não são disponibilidade. Quando o prazo passar, uma nova tentativa ainda pode receber outro 429.');
   } else if (batch.stoppedError) lines.push(`\nInterrompido por erro (${batch.stoppedError}). Faltam nicks; tente novamente. Nenhum resultado sem resposta válida é disponibilidade.`);
+  else if (batch.timedOut) lines.push(`\nPrazo seguro de 12 minutos da interação atingido. A busca foi interrompida e retorna resultado parcial; não houve novas consultas após o prazo.`);
   else if (batch.exhausted) lines.push(`\nForam atingidas ${MAX_ATTEMPTS_PER_REQUEST} tentativas antes da meta. Foram encontrados ${batch.availableCount} de ${target}; tente novamente para procurar outros.`);
   else if ((batch.availableCount ?? 0) < target) lines.push(`\nForam encontrados ${batch.availableCount ?? 0} de ${target}; tente novamente para procurar outros.`);
   lines.push('\n“Aparentemente disponível” só significa resposta válida com `taken: false`; pode mudar. O bot não altera nem reserva nicks. A rota não oficial pode falhar, não usa token de usuário, não contorna limites/CAPTCHA e não envia novos lotes automaticamente.');
@@ -59,8 +60,11 @@ async function handleUsernameInteraction(interaction, { batchChecker = defaultBa
   const length = interaction.fields.getTextInputValue(LENGTH_FIELD_ID); const quantity = interaction.fields.getTextInputValue(QUANTITY_FIELD_ID); const optionalUsername = interaction.fields.getTextInputValue(USERNAME_FIELD_ID);
   await interaction.deferReply({ ephemeral: true });
   const progress = createProgress({ edit: value => interaction.editReply(value), now, onError: error => console.warn('Não foi possível atualizar andamento:', error?.code || error?.name || 'Error') });
+  // O timestamp vem da criação da interação, antes da fila, para não ultrapassar a janela de resposta do Discord.
+  const createdAtMs = Number.isFinite(interaction.createdTimestamp) ? interaction.createdTimestamp : now();
+  const deadlineAtMs = createdAtMs + INTERACTION_DEADLINE_MS;
   try {
-    const batch = await batchChecker.run({ length, quantity, optionalUsername, onProgress: event => progress.update(event) });
+    const batch = await batchChecker.run({ length, quantity, optionalUsername, deadlineAtMs, onProgress: event => progress.update(event) });
     const nowMs = now(); const finalContent = formatUsernameBatchResult(batch, { nowMs });
     // finish serializa o resultado depois de qualquer edição de andamento já iniciada.
     await progress.finish(finalContent);
