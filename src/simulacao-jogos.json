@@ -1,0 +1,2502 @@
+[
+  {
+    "name": "Counter-Strike 2",
+    "id": "1158877933042143272",
+    "match": "unique"
+  },
+  {
+    "name": "Marvel Rivals",
+    "id": "1314395942253756416",
+    "match": "unique"
+  },
+  {
+    "name": "Call of Duty®: Modern Warfare® 4",
+    "id": "1511443377927880775",
+    "match": "unique"
+  },
+  {
+    "name": "Bodycam",
+    "id": "1248788687370588220",
+    "match": "unique"
+  },
+  {
+    "name": "Phantom Blade Zero",
+    "id": "1566301629798424648",
+    "match": "unique"
+  },
+  {
+    "name": "Apex Legends™",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Warframe",
+    "id": "1402418586244612216",
+    "match": "unique"
+  },
+  {
+    "name": "AION 2",
+    "id": "1445982809792708628",
+    "match": "unique"
+  },
+  {
+    "name": "WARDOGS",
+    "id": "1511573843330732122",
+    "match": "unique"
+  },
+  {
+    "name": "Cyberpunk 2077",
+    "id": "787443973538971748",
+    "match": "unique"
+  },
+  {
+    "name": "MapleStory",
+    "id": "359510095811444736",
+    "match": "unique"
+  },
+  {
+    "name": "Limbus Company",
+    "id": "1124352399570653185",
+    "match": "unique"
+  },
+  {
+    "name": "Wuthering Waves",
+    "id": "1247227126416146462",
+    "match": "unique"
+  },
+  {
+    "name": "Where Winds Meet",
+    "id": "1437509662303059998",
+    "match": "unique"
+  },
+  {
+    "name": "War Thunder",
+    "id": "357607478105604096",
+    "match": "unique"
+  },
+  {
+    "name": "EA SPORTS FC™ 27",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Tom Clancy's Rainbow Six Siege",
+    "id": "356876590342340608",
+    "match": "unique"
+  },
+  {
+    "name": "Dead by Daylight",
+    "id": "357607133254254632",
+    "match": "unique"
+  },
+  {
+    "name": "Aniimo",
+    "id": "1468082130474111047",
+    "match": "unique"
+  },
+  {
+    "name": "Dota 2",
+    "id": "356875988589740042",
+    "match": "unique"
+  },
+  {
+    "name": "Crimson Desert Enhanced",
+    "id": "1479320468090519593",
+    "match": "unique"
+  },
+  {
+    "name": "FINAL FANTASY XIV Online",
+    "id": "356889262362329098",
+    "match": "unique"
+  },
+  {
+    "name": "Moon Sweepers",
+    "id": "1565578132029710356",
+    "match": "unique"
+  },
+  {
+    "name": "Rust",
+    "id": "1402418594532298837",
+    "match": "unique"
+  },
+  {
+    "name": "ROB RUN",
+    "id": "1566301766029410356",
+    "match": "unique"
+  },
+  {
+    "name": "American Truck Simulator",
+    "id": "1402416710023123044",
+    "match": "unique"
+  },
+  {
+    "name": "Enshrouded",
+    "id": "1199745463918788740",
+    "match": "unique"
+  },
+  {
+    "name": "HELLDIVERS™ 2",
+    "id": "1205090671527071784",
+    "match": "unique"
+  },
+  {
+    "name": "Slay the Spire 2",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Probably Stolen - Cyberpunk Shopkeeper Sim",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Hearts of Iron IV",
+    "id": "358421669603311616",
+    "match": "unique"
+  },
+  {
+    "name": "NBA 2K27",
+    "id": "1531874750249566429",
+    "match": "unique"
+  },
+  {
+    "name": "Grand Theft Auto V Enhanced",
+    "id": null,
+    "match": "ambiguous"
+  },
+  {
+    "name": "Magic: The Gathering Arena",
+    "id": "505142532297064468",
+    "match": "unique"
+  },
+  {
+    "name": "Path of Exile 2",
+    "id": "1328876348361412619",
+    "match": "unique"
+  },
+  {
+    "name": "Dressmaker",
+    "id": "1552530660806361179",
+    "match": "unique"
+  },
+  {
+    "name": "Queen's Domain",
+    "id": "1449600846085230703",
+    "match": "unique"
+  },
+  {
+    "name": "Baldur's Gate 3",
+    "id": "1137125502985961543",
+    "match": "unique"
+  },
+  {
+    "name": "The Elder Scrolls V: Skyrim Special Edition",
+    "id": "359801269008859136",
+    "match": "unique"
+  },
+  {
+    "name": "FINAL FANTASY RESONANCE",
+    "id": "1547094332761313280",
+    "match": "unique"
+  },
+  {
+    "name": "Godzilla: Destroy All Monsters Melee Remastered",
+    "id": "1562314880441262181",
+    "match": "unique"
+  },
+  {
+    "name": "Once Human",
+    "id": "1260340082150346932",
+    "match": "unique"
+  },
+  {
+    "name": "Destiny 2",
+    "id": "372438022647578634",
+    "match": "unique"
+  },
+  {
+    "name": "ELDEN RING",
+    "id": "1402418436809953330",
+    "match": "unique"
+  },
+  {
+    "name": "Casualties: Unknown",
+    "id": "1469531122563289324",
+    "match": "unique"
+  },
+  {
+    "name": "THE FINALS",
+    "id": "1182713227491147776",
+    "match": "unique"
+  },
+  {
+    "name": "Euro Truck Simulator 2",
+    "id": "1402418075726254102",
+    "match": "unique"
+  },
+  {
+    "name": "STAR WARS: Galactic Racer™",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Scam With Your Friends",
+    "id": "1553255112502149211",
+    "match": "unique"
+  },
+  {
+    "name": "Borderlands 4",
+    "id": "1415390815056035891",
+    "match": "unique"
+  },
+  {
+    "name": "ARC Raiders",
+    "id": "1432419613165228174",
+    "match": "unique"
+  },
+  {
+    "name": "Football Manager 27",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "ACE COMBAT 8: WINGS OF THEVE",
+    "id": "1555429996472967269",
+    "match": "unique"
+  },
+  {
+    "name": "Fallout 76",
+    "id": "512501896896970762",
+    "match": "unique"
+  },
+  {
+    "name": "The Elder Scrolls® Online",
+    "id": "363413894602948608",
+    "match": "unique"
+  },
+  {
+    "name": "VRChat",
+    "id": "398632010442211348",
+    "match": "unique"
+  },
+  {
+    "name": "Planet Zoo 2",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Black Desert",
+    "id": "1402418374851432561",
+    "match": "unique"
+  },
+  {
+    "name": "Escape from Tarkov",
+    "id": null,
+    "match": "ambiguous"
+  },
+  {
+    "name": "Risk of Rain 2",
+    "id": "1402418087793528862",
+    "match": "unique"
+  },
+  {
+    "name": "Age of Wonders 4",
+    "id": "1334668592951590932",
+    "match": "unique"
+  },
+  {
+    "name": "Gears of War: E-Day",
+    "id": "1515195438733463643",
+    "match": "unique"
+  },
+  {
+    "name": "Team Fortress 2",
+    "id": "356888577310851072",
+    "match": "unique"
+  },
+  {
+    "name": "Forza Horizon 6",
+    "id": "1445163122284429375",
+    "match": "unique"
+  },
+  {
+    "name": "How to Fish",
+    "id": "1542021058834468927",
+    "match": "unique"
+  },
+  {
+    "name": "DREADMOOR",
+    "id": "1507218177342439485",
+    "match": "unique"
+  },
+  {
+    "name": "Project Zomboid",
+    "id": "426526722322726912",
+    "match": "unique"
+  },
+  {
+    "name": "The Sims™ 4",
+    "id": "359509007423242240",
+    "match": "unique"
+  },
+  {
+    "name": "RuneScape: Dragonwilds",
+    "id": "1361763069696675961",
+    "match": "unique"
+  },
+  {
+    "name": "iRacing",
+    "id": "454810317705314334",
+    "match": "unique"
+  },
+  {
+    "name": "Cities: Skylines II",
+    "id": "1166420945016201326",
+    "match": "unique"
+  },
+  {
+    "name": "Mortal Shell II",
+    "id": "1515195475534287019",
+    "match": "unique"
+  },
+  {
+    "name": "Overwatch®",
+    "id": "356875221078245376",
+    "match": "unique"
+  },
+  {
+    "name": "PEAK",
+    "id": "1384276457596911676",
+    "match": "unique"
+  },
+  {
+    "name": "Big Walk",
+    "id": "1535497936258076854",
+    "match": "unique"
+  },
+  {
+    "name": "Total War: WARHAMMER III",
+    "id": "1124353392672780388",
+    "match": "unique"
+  },
+  {
+    "name": "BeamNG.drive",
+    "id": "363413743335374859",
+    "match": "unique"
+  },
+  {
+    "name": "Valheim",
+    "id": "1124358970618953818",
+    "match": "unique"
+  },
+  {
+    "name": "Call of Duty®: Warzone™",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Schedule I",
+    "id": "1353866015351636098",
+    "match": "unique"
+  },
+  {
+    "name": "Crusader Kings III",
+    "id": "1124351691123343500",
+    "match": "unique"
+  },
+  {
+    "name": "Zenless Zone Zero",
+    "id": "1257819671114289184",
+    "match": "unique"
+  },
+  {
+    "name": "Yu-Gi-Oh! Master Duel",
+    "id": "1140238527980916757",
+    "match": "unique"
+  },
+  {
+    "name": "CRACK",
+    "id": "1565577956581974196",
+    "match": "unique"
+  },
+  {
+    "name": "Call of Duty®",
+    "id": null,
+    "match": "ambiguous"
+  },
+  {
+    "name": "PUBG: BATTLEGROUNDS",
+    "id": "1402418717781921935",
+    "match": "unique"
+  },
+  {
+    "name": "DayZ",
+    "id": "385538724592746496",
+    "match": "unique"
+  },
+  {
+    "name": "Disney Dreamlight Valley",
+    "id": "1124352360140001361",
+    "match": "unique"
+  },
+  {
+    "name": "Tom Clancy’s The Division® 2",
+    "id": "1402416649495122141",
+    "match": "unique"
+  },
+  {
+    "name": "Warhammer 40,000: Space Marine 2",
+    "id": "1281297844858257418",
+    "match": "unique"
+  },
+  {
+    "name": "Warhammer Survivors",
+    "id": "1509034656924700682",
+    "match": "unique"
+  },
+  {
+    "name": "Red Dead Redemption 2",
+    "id": "1402418648332898466",
+    "match": "unique"
+  },
+  {
+    "name": "R.E.P.O.",
+    "id": "1344368447928401961",
+    "match": "unique"
+  },
+  {
+    "name": "Active Matter",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Potato Please",
+    "id": "1568475680948232203",
+    "match": "unique"
+  },
+  {
+    "name": "ARK: Survival Ascended",
+    "id": "1166979555806949406",
+    "match": "unique"
+  },
+  {
+    "name": "The Blood of Dawnwalker",
+    "id": "1552427210013548626",
+    "match": "unique"
+  },
+  {
+    "name": "Dragon's Dogma 2",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Loftia",
+    "id": "1440130614530539580",
+    "match": "unique"
+  },
+  {
+    "name": "BOMBANANA!",
+    "id": "1517247326589161738",
+    "match": "unique"
+  },
+  {
+    "name": "over the hill",
+    "id": "1498885306277957733",
+    "match": "unique"
+  },
+  {
+    "name": "Stardew Valley",
+    "id": "359509387670192128",
+    "match": "unique"
+  },
+  {
+    "name": "EA SPORTS™ College Football 27",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Farming Simulator 25",
+    "id": "1305894906400739378",
+    "match": "unique"
+  },
+  {
+    "name": "Ready or Not",
+    "id": "1174041358995042375",
+    "match": "unique"
+  },
+  {
+    "name": "Clive Barker's Hellraiser: Revival",
+    "id": "1552168352116641822",
+    "match": "unique"
+  },
+  {
+    "name": "Warhammer 40,000: Darktide",
+    "id": "1124352228166217778",
+    "match": "unique"
+  },
+  {
+    "name": "Battlefield™ 6",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Delta Force",
+    "id": "1314682894106497096",
+    "match": "unique"
+  },
+  {
+    "name": "NTE: Neverness to Everness",
+    "id": "1470616226995765409",
+    "match": "unique"
+  },
+  {
+    "name": "ArcheAge Chronicles",
+    "id": "1549993986360483991",
+    "match": "unique"
+  },
+  {
+    "name": "World of Warships",
+    "id": "1402416956476493935",
+    "match": "unique"
+  },
+  {
+    "name": "Subnautica 2",
+    "id": "1505320535268261888",
+    "match": "unique"
+  },
+  {
+    "name": "Microsoft Flight Simulator 2024",
+    "id": "1308492082369003631",
+    "match": "unique"
+  },
+  {
+    "name": "Phasmophobia",
+    "id": "1402418103702524046",
+    "match": "unique"
+  },
+  {
+    "name": "RimWorld",
+    "id": "363413465584500737",
+    "match": "unique"
+  },
+  {
+    "name": "CONTROL Resonant",
+    "id": "1553255162443866172",
+    "match": "unique"
+  },
+  {
+    "name": "Stellaris",
+    "id": "363408909962182683",
+    "match": "unique"
+  },
+  {
+    "name": "Shift At Midnight",
+    "id": "1445976735597330513",
+    "match": "unique"
+  },
+  {
+    "name": "Path of Exile",
+    "id": "356888453796986880",
+    "match": "unique"
+  },
+  {
+    "name": "BALL x PIT",
+    "id": "1428261289737719908",
+    "match": "unique"
+  },
+  {
+    "name": "Palworld",
+    "id": "1197827812623650866",
+    "match": "unique"
+  },
+  {
+    "name": "STAR WARS™: The Old Republic™",
+    "id": "363412489599188992",
+    "match": "unique"
+  },
+  {
+    "name": "The Isle",
+    "id": "1161778800816816228",
+    "match": "unique"
+  },
+  {
+    "name": "Arena Breakout: Infinite",
+    "id": "1238113262969557002",
+    "match": "unique"
+  },
+  {
+    "name": "Gamble With Your Friends",
+    "id": "1501423706868551860",
+    "match": "unique"
+  },
+  {
+    "name": "Diablo II: Resurrected – Infernal Edition",
+    "id": null,
+    "match": "ambiguous"
+  },
+  {
+    "name": "Diablo® IV",
+    "id": "1113966530531704943",
+    "match": "unique"
+  },
+  {
+    "name": "Age of Empires IV: Anniversary Edition",
+    "id": "1129504181414273136",
+    "match": "unique"
+  },
+  {
+    "name": "EA Play",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "EA SPORTS™ Madden NFL 27",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Satisfactory",
+    "id": "1402416959819350078",
+    "match": "unique"
+  },
+  {
+    "name": "Monster Hunter Wilds",
+    "id": "1344912009807794256",
+    "match": "unique"
+  },
+  {
+    "name": "STAR WARS Zero Company™",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "theHunter: Call of the Wild™",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Castlevania: Belmont's Curse",
+    "id": "1557241121229377607",
+    "match": "unique"
+  },
+  {
+    "name": "Resident Evil Requiem",
+    "id": "1456485028350656512",
+    "match": "unique"
+  },
+  {
+    "name": "Call of Duty®: Black Ops III",
+    "id": "359509332490059776",
+    "match": "unique"
+  },
+  {
+    "name": "Age of Empires II: Definitive Edition",
+    "id": "1402418309189603418",
+    "match": "unique"
+  },
+  {
+    "name": "The Outlast Trials",
+    "id": "1124351960078897173",
+    "match": "unique"
+  },
+  {
+    "name": "Factorio",
+    "id": "358422126602223616",
+    "match": "unique"
+  },
+  {
+    "name": "Onimusha: Way of the Sword",
+    "id": "1512292746889662576",
+    "match": "unique"
+  },
+  {
+    "name": "Minecraft Dungeons II",
+    "id": "1554947773751627928",
+    "match": "unique"
+  },
+  {
+    "name": "Assassin's Creed Black Flag Resynced",
+    "id": "1499976477939077171",
+    "match": "unique"
+  },
+  {
+    "name": "WARNO",
+    "id": "1124353907817201674",
+    "match": "unique"
+  },
+  {
+    "name": "Fallout 4",
+    "id": "359509759642042378",
+    "match": "unique"
+  },
+  {
+    "name": "Sons Of The Forest",
+    "id": "1080279445153263686",
+    "match": "unique"
+  },
+  {
+    "name": "Invokyr",
+    "id": "1512296040274071572",
+    "match": "unique"
+  },
+  {
+    "name": "Anno 117: Pax Romana",
+    "id": "1428177510193172515",
+    "match": "unique"
+  },
+  {
+    "name": "Lightyear Frontier",
+    "id": "1220522350664220764",
+    "match": "unique"
+  },
+  {
+    "name": "Conan Exiles Enhanced",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "One More Lawn",
+    "id": "1565578149314433124",
+    "match": "unique"
+  },
+  {
+    "name": "RV There Yet?",
+    "id": "1430209091942482050",
+    "match": "unique"
+  },
+  {
+    "name": "IdleOn - The Incremental MMO",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Grand Theft Auto: San Andreas – The Definitive Edition",
+    "id": "1402418486071791758",
+    "match": "unique"
+  },
+  {
+    "name": "The Binding of Isaac: Rebirth",
+    "id": "358420454764969994",
+    "match": "unique"
+  },
+  {
+    "name": "Borderlands 3",
+    "id": "1402418366488248361",
+    "match": "unique"
+  },
+  {
+    "name": "Can 'Em All",
+    "id": "1561229069289398383",
+    "match": "unique"
+  },
+  {
+    "name": "IRON NEST: Heavy Turret Simulator",
+    "id": "1477144217317933218",
+    "match": "unique"
+  },
+  {
+    "name": "PAYDAY 3",
+    "id": "1153359932255654019",
+    "match": "unique"
+  },
+  {
+    "name": "The First Descendant",
+    "id": "1256912167685587034",
+    "match": "unique"
+  },
+  {
+    "name": "Transport Fever 3",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "ReStory: Chill Electronics Repairs",
+    "id": "1449600880281256197",
+    "match": "unique"
+  },
+  {
+    "name": "Escape the Backrooms",
+    "id": "1162085521816813721",
+    "match": "unique"
+  },
+  {
+    "name": "Grand Theft Auto IV: The Complete Edition",
+    "id": "1402418547124342845",
+    "match": "unique"
+  },
+  {
+    "name": "MY HERO ULTRA RUMBLE",
+    "id": "1157104676592955474",
+    "match": "unique"
+  },
+  {
+    "name": "Main Sequence",
+    "id": "1445976810717450390",
+    "match": "unique"
+  },
+  {
+    "name": "Hood Warfare 2",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Company of Heroes 3",
+    "id": "1124352637953921104",
+    "match": "unique"
+  },
+  {
+    "name": "Grounded 2",
+    "id": "1399813841487007976",
+    "match": "unique"
+  },
+  {
+    "name": "Umamusume: Pretty Derby",
+    "id": "1387281194043048067",
+    "match": "unique"
+  },
+  {
+    "name": "Aimlabs",
+    "id": "506950362461110273",
+    "match": "unique"
+  },
+  {
+    "name": "Mount & Blade II: Bannerlord",
+    "id": "1163956401874403438",
+    "match": "unique"
+  },
+  {
+    "name": "007 First Light",
+    "id": "1503601667281653892",
+    "match": "unique"
+  },
+  {
+    "name": "Warhammer 40,000: Dawn of War IV",
+    "id": "1526672836079521892",
+    "match": "unique"
+  },
+  {
+    "name": "Sid Meier's Civilization VII",
+    "id": "1336879105844711444",
+    "match": "unique"
+  },
+  {
+    "name": "Find The Needle",
+    "id": "1549993920287612960",
+    "match": "unique"
+  },
+  {
+    "name": "Halloween: The Game",
+    "id": "1547094342005686332",
+    "match": "unique"
+  },
+  {
+    "name": "Horses of Hoofprint Bay",
+    "id": "1474968220116189459",
+    "match": "unique"
+  },
+  {
+    "name": "Booster Pack Heroes",
+    "id": "1502149432815386816",
+    "match": "unique"
+  },
+  {
+    "name": "Heartopia",
+    "id": "1459748750292422709",
+    "match": "unique"
+  },
+  {
+    "name": "Dune: Awakening",
+    "id": "1342435759440924712",
+    "match": "unique"
+  },
+  {
+    "name": "Tabletop Simulator",
+    "id": "363408834095742976",
+    "match": "unique"
+  },
+  {
+    "name": "Trails in the Sky 1st Chapter",
+    "id": null,
+    "match": "ambiguous"
+  },
+  {
+    "name": "Arma Reforger",
+    "id": "1266877867619516416",
+    "match": "unique"
+  },
+  {
+    "name": "Raft",
+    "id": "449806905901056012",
+    "match": "unique"
+  },
+  {
+    "name": "Nomad Drive",
+    "id": "1517741367168598076",
+    "match": "unique"
+  },
+  {
+    "name": "Battlefield™ REDSEC",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "For The King II",
+    "id": "1169697504942620714",
+    "match": "unique"
+  },
+  {
+    "name": "Wizard101",
+    "id": "363413310474813450",
+    "match": "unique"
+  },
+  {
+    "name": "Clair Obscur: Expedition 33",
+    "id": "1364888648839073802",
+    "match": "unique"
+  },
+  {
+    "name": "Persona5: The Phantom X",
+    "id": "1387628503352082572",
+    "match": "unique"
+  },
+  {
+    "name": "Warhammer 40,000: Boltgun 2",
+    "id": "1510001425298751672",
+    "match": "unique"
+  },
+  {
+    "name": "Resident Evil 4",
+    "id": "1129504209226711190",
+    "match": "unique"
+  },
+  {
+    "name": "Halo: The Master Chief Collection",
+    "id": "1402418089332834455",
+    "match": "unique"
+  },
+  {
+    "name": "Guild Wars 2®",
+    "id": "359511228445491200",
+    "match": "unique"
+  },
+  {
+    "name": "Infinity Nikki",
+    "id": "1366625080871878687",
+    "match": "unique"
+  },
+  {
+    "name": "Gray Zone Warfare",
+    "id": "1234821572246896730",
+    "match": "unique"
+  },
+  {
+    "name": "DELTARUNE",
+    "id": "1379852275454836837",
+    "match": "unique"
+  },
+  {
+    "name": "Nivalis Nights",
+    "id": "1555792393784139828",
+    "match": "unique"
+  },
+  {
+    "name": "HITMAN World of Assassination",
+    "id": "1440130152850784329",
+    "match": "unique"
+  },
+  {
+    "name": "TEKKEN 8",
+    "id": "1200228630245159032",
+    "match": "unique"
+  },
+  {
+    "name": "Happy Wheels",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Terraria",
+    "id": "1402418344912752671",
+    "match": "unique"
+  },
+  {
+    "name": "FOR HONOR™",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Borderlands 2",
+    "id": "421150698168909834",
+    "match": "unique"
+  },
+  {
+    "name": "Street Fighter™ 6",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "No Man's Sky",
+    "id": "443159611479031808",
+    "match": "unique"
+  },
+  {
+    "name": "Far Far West",
+    "id": "1437603706886426675",
+    "match": "unique"
+  },
+  {
+    "name": "Victoria 3",
+    "id": "1124352195157045371",
+    "match": "unique"
+  },
+  {
+    "name": "7 Days to Die",
+    "id": "363409643973771264",
+    "match": "unique"
+  },
+  {
+    "name": "inZOI",
+    "id": "1275695911804338277",
+    "match": "unique"
+  },
+  {
+    "name": "Marvel's Spider-Man 2",
+    "id": "1334583970095960095",
+    "match": "unique"
+  },
+  {
+    "name": "S.T.A.L.K.E.R. 2: Heart of Chornobyl",
+    "id": "1308839423441502208",
+    "match": "unique"
+  },
+  {
+    "name": "Warhammer 40,000: Rogue Trader",
+    "id": "1182396144152748072",
+    "match": "unique"
+  },
+  {
+    "name": "MECCHA CHAMELEON",
+    "id": "1515196091140935700",
+    "match": "unique"
+  },
+  {
+    "name": "9 Kings",
+    "id": "1375820768616648795",
+    "match": "unique"
+  },
+  {
+    "name": "eFootball™",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Brick by Brick: Tidy Up the Small Town!",
+    "id": "1562315383170535454",
+    "match": "unique"
+  },
+  {
+    "name": "MechWarrior 5: Mercenaries",
+    "id": "1124352592571547768",
+    "match": "unique"
+  },
+  {
+    "name": "Half Sword",
+    "id": "1440132640333103207",
+    "match": "unique"
+  },
+  {
+    "name": "Jurassic World Evolution 3",
+    "id": "1430209095348256969",
+    "match": "unique"
+  },
+  {
+    "name": "Brawlhalla",
+    "id": "356944273133928458",
+    "match": "unique"
+  },
+  {
+    "name": "iRacing® Studios NASCAR 26",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Bloons TD 6",
+    "id": "1402418571715543120",
+    "match": "unique"
+  },
+  {
+    "name": "Graveyard Keeper 2",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Sea of Thieves: 2026 Edition",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "No More Room in Hell 2",
+    "id": "1298345185981501491",
+    "match": "unique"
+  },
+  {
+    "name": "Hunt: Showdown 1896",
+    "id": "1402417933225033759",
+    "match": "unique"
+  },
+  {
+    "name": "The Witcher 3: Wild Hunt — Remastered",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Split Fiction",
+    "id": "1346539568043655208",
+    "match": "unique"
+  },
+  {
+    "name": "Star Trek Online",
+    "id": "448384255131779073",
+    "match": "unique"
+  },
+  {
+    "name": "Brotato",
+    "id": "1124351818437242910",
+    "match": "unique"
+  },
+  {
+    "name": "Kingdom Come: Deliverance II",
+    "id": "1336135084520116326",
+    "match": "unique"
+  },
+  {
+    "name": "Tape to Tape",
+    "id": "1124357741570441346",
+    "match": "unique"
+  },
+  {
+    "name": "Sonic Racing: CrossWorlds",
+    "id": "1420198108306079785",
+    "match": "unique"
+  },
+  {
+    "name": "Machine Party",
+    "id": "1534411052014506085",
+    "match": "unique"
+  },
+  {
+    "name": "Cozy Game Restoration",
+    "id": "1503598263998353558",
+    "match": "unique"
+  },
+  {
+    "name": "Paralives",
+    "id": "1509785206788460656",
+    "match": "unique"
+  },
+  {
+    "name": "Supermarket Simulator",
+    "id": "1210255037650182144",
+    "match": "unique"
+  },
+  {
+    "name": "DARK SOULS™ III",
+    "id": "359509500199436288",
+    "match": "unique"
+  },
+  {
+    "name": "TCG Card Shop Simulator",
+    "id": "1284997239860625428",
+    "match": "unique"
+  },
+  {
+    "name": "KINGDOM HEARTS -HD 1.5+2.5 ReMIX-",
+    "id": "1334660101658906724",
+    "match": "unique"
+  },
+  {
+    "name": "Left 4 Dead 2",
+    "id": "356954277803065354",
+    "match": "unique"
+  },
+  {
+    "name": "Tom Clancy's Ghost Recon® Wildlands",
+    "id": "363428336749379604",
+    "match": "unique"
+  },
+  {
+    "name": "GIRLS' FRONTLINE 2: EXILIUM",
+    "id": "1339098696419246110",
+    "match": "unique"
+  },
+  {
+    "name": "SILENT HILL: Townfall",
+    "id": "1552530405343760395",
+    "match": "unique"
+  },
+  {
+    "name": "Palia",
+    "id": "1164638522469261414",
+    "match": "unique"
+  },
+  {
+    "name": "Dispatch",
+    "id": "1430601682257051760",
+    "match": "unique"
+  },
+  {
+    "name": "Playrooms",
+    "id": "1562315043046039643",
+    "match": "unique"
+  },
+  {
+    "name": "Silver Pines",
+    "id": "1512296063510515792",
+    "match": "unique"
+  },
+  {
+    "name": "Groundwork Simulator",
+    "id": "1565578077864468490",
+    "match": "unique"
+  },
+  {
+    "name": "The Last of Us™ Part I",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "The Last of Us™ Part II Remastered",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "SnowRunner",
+    "id": "1124351964084449423",
+    "match": "unique"
+  },
+  {
+    "name": "SMITE 2",
+    "id": "1334654007884517509",
+    "match": "unique"
+  },
+  {
+    "name": "Lost Ark",
+    "id": "940810636273795162",
+    "match": "unique"
+  },
+  {
+    "name": "Valor Mortis",
+    "id": "1442721829214224404",
+    "match": "unique"
+  },
+  {
+    "name": "House Flipper 2",
+    "id": "1184917744454475786",
+    "match": "unique"
+  },
+  {
+    "name": "Underkeep",
+    "id": "1474965090439790756",
+    "match": "unique"
+  },
+  {
+    "name": "The Farmer Was Replaced",
+    "id": "1244681621433487381",
+    "match": "unique"
+  },
+  {
+    "name": "hololive Dreams",
+    "id": "1530787294666162260",
+    "match": "unique"
+  },
+  {
+    "name": "Trash Day",
+    "id": "1516279362020704256",
+    "match": "unique"
+  },
+  {
+    "name": "Lethal Company",
+    "id": "1167674267748540516",
+    "match": "unique"
+  },
+  {
+    "name": "Abiotic Factor",
+    "id": "1235757738928111729",
+    "match": "unique"
+  },
+  {
+    "name": "World of Tanks",
+    "id": "1402418078813523999",
+    "match": "unique"
+  },
+  {
+    "name": "LEGO® Batman™: Legacy of the Dark Knight",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Deep Rock Galactic: Rogue Core",
+    "id": "1440136953667256370",
+    "match": "unique"
+  },
+  {
+    "name": "PAYDAY 2",
+    "id": "1402417752404394125",
+    "match": "unique"
+  },
+  {
+    "name": "Ghost of Tsushima DIRECTOR'S CUT",
+    "id": "1240695360863604736",
+    "match": "unique"
+  },
+  {
+    "name": "The Lantern of the Laughless Saint",
+    "id": "1540209052817162342",
+    "match": "unique"
+  },
+  {
+    "name": "ELDEN RING NIGHTREIGN",
+    "id": "1377783621775130694",
+    "match": "unique"
+  },
+  {
+    "name": "Assetto Corsa",
+    "id": "425778010222886912",
+    "match": "unique"
+  },
+  {
+    "name": "The Jackbox Party Pack 12",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Easy Red 2",
+    "id": "1124355305296375818",
+    "match": "unique"
+  },
+  {
+    "name": "Cat Mail Co.",
+    "id": "1517247131088457959",
+    "match": "unique"
+  },
+  {
+    "name": "ULTRAKILL",
+    "id": "1124351854831222945",
+    "match": "unique"
+  },
+  {
+    "name": "Terrible Lizards",
+    "id": "1554705109215219752",
+    "match": "unique"
+  },
+  {
+    "name": "Sniper Elite: Resistance",
+    "id": "1334689652849901731",
+    "match": "unique"
+  },
+  {
+    "name": "PRAGMATA",
+    "id": "1448369915462549616",
+    "match": "unique"
+  },
+  {
+    "name": "Sekiro™: Shadows Die Twice - GOTY Edition",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Garry's Mod",
+    "id": "356879032584896512",
+    "match": "unique"
+  },
+  {
+    "name": "Ashes of the Singularity II",
+    "id": "1477144160720125962",
+    "match": "unique"
+  },
+  {
+    "name": "Order of the Sinking Star",
+    "id": "1517247063752966306",
+    "match": "unique"
+  },
+  {
+    "name": "Beat Saber",
+    "id": "451991967149195264",
+    "match": "unique"
+  },
+  {
+    "name": "Blue Archive",
+    "id": "1390512760860704889",
+    "match": "unique"
+  },
+  {
+    "name": "Frostpunk 2",
+    "id": "1229808543335714816",
+    "match": "unique"
+  },
+  {
+    "name": "World of Tanks Blitz",
+    "id": "419272031960432651",
+    "match": "unique"
+  },
+  {
+    "name": "Permafrost",
+    "id": "1440134124185714748",
+    "match": "unique"
+  },
+  {
+    "name": "DC Universe™ Online",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "The Long Dark",
+    "id": "406638150857785344",
+    "match": "unique"
+  },
+  {
+    "name": "Cult of the Lamb",
+    "id": "1124351730323308675",
+    "match": "unique"
+  },
+  {
+    "name": "DYNASTY WARRIORS 3: Complete Edition Remastered",
+    "id": "1554704925492121670",
+    "match": "unique"
+  },
+  {
+    "name": "Dead as Disco",
+    "id": "1442721149120155780",
+    "match": "unique"
+  },
+  {
+    "name": "Never Sort By Color",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "It Takes Two",
+    "id": "1161772927566495865",
+    "match": "unique"
+  },
+  {
+    "name": "Rat Game",
+    "id": "1567388364494340167",
+    "match": "unique"
+  },
+  {
+    "name": "Way of the Hunter 2",
+    "id": "1484301533259497552",
+    "match": "unique"
+  },
+  {
+    "name": "Starfield",
+    "id": "1146972864566788137",
+    "match": "unique"
+  },
+  {
+    "name": "Bills Must Be Paid",
+    "id": "1498886729594310857",
+    "match": "unique"
+  },
+  {
+    "name": "Black Myth: Wukong",
+    "id": "1272842103910699040",
+    "match": "unique"
+  },
+  {
+    "name": "DinoBones: Tidy Up the Museum",
+    "id": "1554705168065364088",
+    "match": "unique"
+  },
+  {
+    "name": "REMATCH",
+    "id": "1384231110787072130",
+    "match": "unique"
+  },
+  {
+    "name": "Dying Light: The Beast",
+    "id": "1418280474832277605",
+    "match": "unique"
+  },
+  {
+    "name": "REANIMAL",
+    "id": "1442718575138967686",
+    "match": "unique"
+  },
+  {
+    "name": "Balatro",
+    "id": "1209665818464358430",
+    "match": "unique"
+  },
+  {
+    "name": "Sky: Children of the Light",
+    "id": "1227770132994986035",
+    "match": "unique"
+  },
+  {
+    "name": "Retro Rewind - Video Store Simulator",
+    "id": "1440138878647271547",
+    "match": "unique"
+  },
+  {
+    "name": "VOID/BREAKER",
+    "id": "1408314811003179089",
+    "match": "unique"
+  },
+  {
+    "name": "Trails in the Sky 2nd Chapter",
+    "id": "1540934179309490269",
+    "match": "unique"
+  },
+  {
+    "name": "Avatar: Frontiers of Pandora™",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Windrose",
+    "id": "1440133627899023452",
+    "match": "unique"
+  },
+  {
+    "name": "DRAGON BALL: Sparking! ZERO",
+    "id": "1292984869370200074",
+    "match": "unique"
+  },
+  {
+    "name": "Dimraeth",
+    "id": "1445976771823669288",
+    "match": "unique"
+  },
+  {
+    "name": "The Wolf Among Us Remastered",
+    "id": "1563401930863026199",
+    "match": "unique"
+  },
+  {
+    "name": "ICARUS",
+    "id": "1248712121978720338",
+    "match": "unique"
+  },
+  {
+    "name": "Slotbound",
+    "id": "1526802033544528043",
+    "match": "unique"
+  },
+  {
+    "name": "GRAVHOUNDS",
+    "id": "1549993912859492412",
+    "match": "unique"
+  },
+  {
+    "name": "World War Z",
+    "id": null,
+    "match": "ambiguous"
+  },
+  {
+    "name": "Ski-E-O! Ski Resort Tycoon",
+    "id": "1544195550264557668",
+    "match": "unique"
+  },
+  {
+    "name": "Teardown",
+    "id": "1124351704880660691",
+    "match": "unique"
+  },
+  {
+    "name": "StarSavior",
+    "id": "1451412907748364449",
+    "match": "unique"
+  },
+  {
+    "name": "Hogwarts Legacy",
+    "id": "1080277149623271444",
+    "match": "unique"
+  },
+  {
+    "name": "Sea Power : Naval Combat in the Missile Age",
+    "id": "1306000615872135379",
+    "match": "unique"
+  },
+  {
+    "name": "F1® 25",
+    "id": "1376968272905371698",
+    "match": "unique"
+  },
+  {
+    "name": "Warrior Cats: Clans of the Forest",
+    "id": "1564490022864814110",
+    "match": "unique"
+  },
+  {
+    "name": "DREDGE",
+    "id": "1124352340749725766",
+    "match": "unique"
+  },
+  {
+    "name": "DARK SOULS™: REMASTERED",
+    "id": "449738622619353088",
+    "match": "unique"
+  },
+  {
+    "name": "Annihilated",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Marvel’s Spider-Man Remastered",
+    "id": "1124351769175150702",
+    "match": "unique"
+  },
+  {
+    "name": "Stellar Blade™",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "SULFUR",
+    "id": "1301214061371068527",
+    "match": "unique"
+  },
+  {
+    "name": "VEIN",
+    "id": "1124360440122720266",
+    "match": "unique"
+  },
+  {
+    "name": "Le Mans Ultimate",
+    "id": "1209590320493494353",
+    "match": "unique"
+  },
+  {
+    "name": "Party Animals",
+    "id": "1154114929612296355",
+    "match": "unique"
+  },
+  {
+    "name": "Car Mechanic Simulator 2021",
+    "id": "1124351973701988422",
+    "match": "unique"
+  },
+  {
+    "name": "Funnel Runners",
+    "id": "1529337582037499916",
+    "match": "unique"
+  },
+  {
+    "name": "PowerWash Simulator 2",
+    "id": "1430948965725245641",
+    "match": "unique"
+  },
+  {
+    "name": "Escape Simulator 2",
+    "id": "1432534419150999572",
+    "match": "unique"
+  },
+  {
+    "name": "Cities: Skylines",
+    "id": "356954111901433856",
+    "match": "unique"
+  },
+  {
+    "name": "War Robots",
+    "id": "472823716062167050",
+    "match": "unique"
+  },
+  {
+    "name": "NARAKA: BLADEPOINT",
+    "id": "1126956844993232987",
+    "match": "unique"
+  },
+  {
+    "name": "Outer Wilds",
+    "id": "1124351860376096858",
+    "match": "unique"
+  },
+  {
+    "name": "The Elder Scrolls IV: Oblivion Remastered",
+    "id": "1364269607065485392",
+    "match": "unique"
+  },
+  {
+    "name": "WWE 2K26",
+    "id": "1471343529237155973",
+    "match": "unique"
+  },
+  {
+    "name": "Hell Let Loose: Vietnam",
+    "id": "1498886736523165766",
+    "match": "unique"
+  },
+  {
+    "name": "REKA",
+    "id": "1284559342984761436",
+    "match": "unique"
+  },
+  {
+    "name": "Monster Train 2",
+    "id": "1375095903123144794",
+    "match": "unique"
+  },
+  {
+    "name": "Chained Beasts",
+    "id": "1428223911945830472",
+    "match": "unique"
+  },
+  {
+    "name": "Resident Evil 7 Biohazard",
+    "id": null,
+    "match": "ambiguous"
+  },
+  {
+    "name": "Call of Duty®: Black Ops II",
+    "id": "363427270024626176",
+    "match": "unique"
+  },
+  {
+    "name": "Assassin’s Creed Shadows",
+    "id": "1352114489314639882",
+    "match": "unique"
+  },
+  {
+    "name": "Don't Starve Together",
+    "id": "359508004078616586",
+    "match": "unique"
+  },
+  {
+    "name": "Fields of Mistria",
+    "id": "1270214804296040459",
+    "match": "unique"
+  },
+  {
+    "name": "Hades II",
+    "id": "1237101681695522867",
+    "match": "unique"
+  },
+  {
+    "name": "Sid Meier’s Civilization® VI",
+    "id": "363413834301571072",
+    "match": "unique"
+  },
+  {
+    "name": "Endacopia",
+    "id": "1518103264430657676",
+    "match": "unique"
+  },
+  {
+    "name": "God of War Ragnarök",
+    "id": "1286371274003841115",
+    "match": "unique"
+  },
+  {
+    "name": "Marathon",
+    "id": "1451409609632911453",
+    "match": "unique"
+  },
+  {
+    "name": "X4: Foundations",
+    "id": "1124352539580711073",
+    "match": "unique"
+  },
+  {
+    "name": "Mass Effect™ Legendary Edition",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "MARVEL Cosmic Invasion",
+    "id": "1442721038013042791",
+    "match": "unique"
+  },
+  {
+    "name": "Sniper Elite 5",
+    "id": "1124352979449958511",
+    "match": "unique"
+  },
+  {
+    "name": "DCS World Steam Edition",
+    "id": "496568071713062928",
+    "match": "unique"
+  },
+  {
+    "name": "No Rest for the Wicked",
+    "id": "1230563625622831134",
+    "match": "unique"
+  },
+  {
+    "name": "Persona 3 Reload",
+    "id": "1202855949451399178",
+    "match": "unique"
+  },
+  {
+    "name": "Planet Coaster 2",
+    "id": "1303765881121411113",
+    "match": "unique"
+  },
+  {
+    "name": "Among Us",
+    "id": "1402418440685486130",
+    "match": "unique"
+  },
+  {
+    "name": "Waterpark Simulator",
+    "id": "1410383465618079865",
+    "match": "unique"
+  },
+  {
+    "name": "DARK SOULS™ II: Scholar of the First Sin",
+    "id": "363426741269692416",
+    "match": "unique"
+  },
+  {
+    "name": "DreamWorks Shrek 2 Remastered",
+    "id": "1570649957927485460",
+    "match": "unique"
+  },
+  {
+    "name": "Quarantine Zone: The Last Check",
+    "id": "1440134227520782448",
+    "match": "unique"
+  },
+  {
+    "name": "ARK: Survival Evolved",
+    "id": "356887282982191114",
+    "match": "unique"
+  },
+  {
+    "name": "JOHN GLEEP",
+    "id": "1535136083854229587",
+    "match": "unique"
+  },
+  {
+    "name": "The Crew Motorfest",
+    "id": "1242326083647442984",
+    "match": "unique"
+  },
+  {
+    "name": "Torchlight: Infinite",
+    "id": "1129504534809550858",
+    "match": "unique"
+  },
+  {
+    "name": "the cabin game",
+    "id": "1546007177251127358",
+    "match": "unique"
+  },
+  {
+    "name": "Two Point Museum",
+    "id": "1345621683033210942",
+    "match": "unique"
+  },
+  {
+    "name": "Shroom and Gloom",
+    "id": "1442721522547691581",
+    "match": "unique"
+  },
+  {
+    "name": "Thronefall",
+    "id": "1137037446647914616",
+    "match": "unique"
+  },
+  {
+    "name": "RuneScape ®",
+    "id": "357606832899883008",
+    "match": "unique"
+  },
+  {
+    "name": "Deep Rock Galactic",
+    "id": "428054228511227914",
+    "match": "unique"
+  },
+  {
+    "name": "The Mound: Omen of Cthulhu",
+    "id": "1515074184961724517",
+    "match": "unique"
+  },
+  {
+    "name": "Call of Duty®: Modern Warfare® III",
+    "id": "1400191300573331578",
+    "match": "unique"
+  },
+  {
+    "name": "Manor Lords",
+    "id": "1124353084886364271",
+    "match": "unique"
+  },
+  {
+    "name": "Vampire Survivors",
+    "id": "1334673895453884566",
+    "match": "unique"
+  },
+  {
+    "name": "Coral Island",
+    "id": "1124352995887435876",
+    "match": "unique"
+  },
+  {
+    "name": "Overcooked! 2",
+    "id": "479169486583496704",
+    "match": "unique"
+  },
+  {
+    "name": "The Forest",
+    "id": "363409179668512788",
+    "match": "unique"
+  },
+  {
+    "name": "Call to Arms - Gates of Hell: Ostfront",
+    "id": "1124358962461036676",
+    "match": "unique"
+  },
+  {
+    "name": "Red Dead Redemption",
+    "id": "1300881883940524095",
+    "match": "unique"
+  },
+  {
+    "name": "Persona 5 Royal",
+    "id": "1207749542183960657",
+    "match": "unique"
+  },
+  {
+    "name": "Mycopunk",
+    "id": "1393457132669501532",
+    "match": "unique"
+  },
+  {
+    "name": "STALZONE",
+    "id": "1124351909235539978",
+    "match": "unique"
+  },
+  {
+    "name": "Species: Unknown",
+    "id": "1432926991329398814",
+    "match": "unique"
+  },
+  {
+    "name": "Lies of P",
+    "id": "1153677203305930762",
+    "match": "unique"
+  },
+  {
+    "name": "Leaf it Alone",
+    "id": "1436550874276040754",
+    "match": "unique"
+  },
+  {
+    "name": "Total War: WARHAMMER II",
+    "id": "363426802640617482",
+    "match": "unique"
+  },
+  {
+    "name": "Blade and Sorcery",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Mewgenics",
+    "id": "1470796603756642416",
+    "match": "unique"
+  },
+  {
+    "name": "Grounded",
+    "id": "738856512868450314",
+    "match": "unique"
+  },
+  {
+    "name": "Nioh 3",
+    "id": "1442721485566251168",
+    "match": "unique"
+  },
+  {
+    "name": "Resident Evil 2",
+    "id": null,
+    "match": "ambiguous"
+  },
+  {
+    "name": "Escape Academy 2: Back 2 School",
+    "id": "1451412926698229922",
+    "match": "unique"
+  },
+  {
+    "name": "Metaphor: ReFantazio",
+    "id": "1294162617006297148",
+    "match": "unique"
+  },
+  {
+    "name": "The Planet Crafter",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "IL-2 Sturmovik: Battle of Stalingrad",
+    "id": "1402417021182021792",
+    "match": "unique"
+  },
+  {
+    "name": "Finals Week ✍🏻",
+    "id": "1564490034722373703",
+    "match": "unique"
+  },
+  {
+    "name": "South Park™: The Fractured But Whole™",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Arknights: Endfield",
+    "id": "1461154307171811401",
+    "match": "unique"
+  },
+  {
+    "name": "Fallout: New Vegas",
+    "id": "359509858728542208",
+    "match": "unique"
+  },
+  {
+    "name": "Hollow Knight",
+    "id": "363431029484027904",
+    "match": "unique"
+  },
+  {
+    "name": "Predecessor",
+    "id": "1124358185470406746",
+    "match": "unique"
+  },
+  {
+    "name": "Far Cry® 5",
+    "id": "443156340454457344",
+    "match": "unique"
+  },
+  {
+    "name": "Well Dweller",
+    "id": "1499610268861202532",
+    "match": "unique"
+  },
+  {
+    "name": "Deep Dish Dungeon",
+    "id": "1477143807920308278",
+    "match": "unique"
+  },
+  {
+    "name": "Noble Fates",
+    "id": "1124357829248168068",
+    "match": "unique"
+  },
+  {
+    "name": "Batomon Showdown",
+    "id": "1496713169824121034",
+    "match": "unique"
+  },
+  {
+    "name": "FINAL FANTASY VII REBIRTH",
+    "id": "1332017067871703123",
+    "match": "unique"
+  },
+  {
+    "name": "Eternal Return",
+    "id": "1402417155441430658",
+    "match": "unique"
+  },
+  {
+    "name": "RoadCraft",
+    "id": "1374431527349391471",
+    "match": "unique"
+  },
+  {
+    "name": "God of War",
+    "id": "1124351711486689290",
+    "match": "unique"
+  },
+  {
+    "name": "REMNANT II®",
+    "id": "1131755677174485055",
+    "match": "unique"
+  },
+  {
+    "name": "Subnautica",
+    "id": "1402418337052622949",
+    "match": "unique"
+  },
+  {
+    "name": "Resident Evil Village",
+    "id": "1162153766859059241",
+    "match": "unique"
+  },
+  {
+    "name": "Jump Space",
+    "id": "1418657970539204648",
+    "match": "unique"
+  },
+  {
+    "name": "PGA TOUR 2K25",
+    "id": "1344912012853116978",
+    "match": "unique"
+  },
+  {
+    "name": "OPERATOR",
+    "id": null,
+    "match": "ambiguous"
+  },
+  {
+    "name": "Tainted Grail: The Fall of Avalon",
+    "id": "1129505820980297758",
+    "match": "unique"
+  },
+  {
+    "name": "Europa Universalis IV",
+    "id": "363409417632481280",
+    "match": "unique"
+  },
+  {
+    "name": "FATAL FURY: City of the Wolves",
+    "id": "1366172166659506216",
+    "match": "unique"
+  },
+  {
+    "name": "MX Bikes",
+    "id": "1124352181441679441",
+    "match": "unique"
+  },
+  {
+    "name": "S.O.N.A.R. - Submarine Operators Not Actually Ready",
+    "id": "1531874747674263623",
+    "match": "unique"
+  },
+  {
+    "name": "DRAGON BALL XENOVERSE 2",
+    "id": "363414443129831444",
+    "match": "unique"
+  },
+  {
+    "name": "WorldBox - God Simulator",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Aviassembly",
+    "id": "1361914074958397440",
+    "match": "unique"
+  },
+  {
+    "name": "Trailmakers",
+    "id": "1124351971516760084",
+    "match": "unique"
+  },
+  {
+    "name": "Hollow Knight: Silksong",
+    "id": "1413176957381771337",
+    "match": "unique"
+  },
+  {
+    "name": "GUILTY GEAR -STRIVE-",
+    "id": "1161796385562177627",
+    "match": "unique"
+  },
+  {
+    "name": "Backrooms: Escape Together",
+    "id": "1124354512241573938",
+    "match": "unique"
+  },
+  {
+    "name": "Dice Hoarder",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Gothic 1 Remake",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "The Last Caretaker",
+    "id": "1437094470305710120",
+    "match": "unique"
+  },
+  {
+    "name": "Core Keeper",
+    "id": "1124351749550002268",
+    "match": "unique"
+  },
+  {
+    "name": "Geometry Dash",
+    "id": "356942674672091136",
+    "match": "unique"
+  },
+  {
+    "name": "Dying Light 2 Stay Human: Reloaded Edition",
+    "id": "1428176084574408846",
+    "match": "unique"
+  },
+  {
+    "name": "Squad",
+    "id": "363428011980357632",
+    "match": "unique"
+  },
+  {
+    "name": "Scritchy Scratchy",
+    "id": "1445976089380913152",
+    "match": "unique"
+  },
+  {
+    "name": "Librarian: Tidy Up the Arcane Library!",
+    "id": "1501423633464164483",
+    "match": "unique"
+  },
+  {
+    "name": "Rip It! Card Collector",
+    "id": "1561229126751359036",
+    "match": "unique"
+  },
+  {
+    "name": "Cuphead",
+    "id": "363430002181668864",
+    "match": "unique"
+  },
+  {
+    "name": "Zombies Aren't Real",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Avatar Legends: The Fighting Game",
+    "id": "1478591389196615770",
+    "match": "unique"
+  },
+  {
+    "name": "DAVE THE DIVER",
+    "id": "1126960184024104980",
+    "match": "unique"
+  },
+  {
+    "name": "Super Battle Golf",
+    "id": "1474194050222657800",
+    "match": "unique"
+  },
+  {
+    "name": "ENDLESS Legend™ 2",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Borderlands: The Pre-Sequel",
+    "id": "406645950782636041",
+    "match": "unique"
+  },
+  {
+    "name": "Burglin' Gnomes",
+    "id": "1468445147594494213",
+    "match": "unique"
+  },
+  {
+    "name": "Detroit: Become Human",
+    "id": "1124351832454615120",
+    "match": "unique"
+  },
+  {
+    "name": "ZED ZONE",
+    "id": "1129505699987210350",
+    "match": "unique"
+  },
+  {
+    "name": "FINAL FANTASY VII REVELATION",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "MARVEL Tōkon: Fighting Souls",
+    "id": "1428207854153633852",
+    "match": "unique"
+  },
+  {
+    "name": "Wizardry Variants Daphne",
+    "id": "1350287428048654396",
+    "match": "unique"
+  },
+  {
+    "name": "Cairn",
+    "id": "1440131695260074066",
+    "match": "unique"
+  },
+  {
+    "name": "DOOM: The Dark Ages",
+    "id": "1371653252600430622",
+    "match": "unique"
+  },
+  {
+    "name": "NARUTO TO BORUTO: SHINOBI STRIKER",
+    "id": "1161771263644155904",
+    "match": "unique"
+  },
+  {
+    "name": "FINAL FANTASY VII REMAKE INTERGRADE",
+    "id": "1124352407741149344",
+    "match": "unique"
+  },
+  {
+    "name": "Dying Light",
+    "id": "363427839137153024",
+    "match": "unique"
+  },
+  {
+    "name": "Kerbal Space Program",
+    "id": "363429406376722442",
+    "match": "unique"
+  },
+  {
+    "name": "Assassin's Creed® Odyssey",
+    "id": "497898978466070528",
+    "match": "unique"
+  },
+  {
+    "name": "One Million Coins",
+    "id": "1562315327973367888",
+    "match": "unique"
+  },
+  {
+    "name": "Monster Hunter: World",
+    "id": "477152881196269569",
+    "match": "unique"
+  },
+  {
+    "name": "Granblue Fantasy: Relink",
+    "id": "1202493549975969822",
+    "match": "unique"
+  },
+  {
+    "name": "ATMOSFAR",
+    "id": "1477144139220123721",
+    "match": "unique"
+  },
+  {
+    "name": "Halo: Campaign Evolved",
+    "id": "1530787122695508019",
+    "match": "unique"
+  },
+  {
+    "name": "Grim Dawn",
+    "id": "425777682135908352",
+    "match": "unique"
+  },
+  {
+    "name": "The Seven Deadly Sins: Origin",
+    "id": "1440541773448351835",
+    "match": "unique"
+  },
+  {
+    "name": "Mycelarium",
+    "id": "1567388778232811632",
+    "match": "unique"
+  },
+  {
+    "name": "Stormforge",
+    "id": "1532961223790821496",
+    "match": "unique"
+  },
+  {
+    "name": "Absolum",
+    "id": "1426177539537375343",
+    "match": "unique"
+  },
+  {
+    "name": "Escape from Playtime",
+    "id": "1557241539418128464",
+    "match": "unique"
+  },
+  {
+    "name": "The Alters",
+    "id": "1383279961032495224",
+    "match": "unique"
+  },
+  {
+    "name": "Divinity: Original Sin 2 - Definitive Edition",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Road Rash™: 30th Anniversary Edition",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "Shape of Dreams",
+    "id": "1415622978246414446",
+    "match": "unique"
+  },
+  {
+    "name": "DEATH STRANDING 2: ON THE BEACH",
+    "id": "1440130084496212073",
+    "match": "unique"
+  },
+  {
+    "name": "Batman™: Arkham Knight",
+    "id": "425437076188561408",
+    "match": "unique"
+  },
+  {
+    "name": "Sort Them Ducks",
+    "id": "1539484410364039178",
+    "match": "unique"
+  },
+  {
+    "name": "Summoners War",
+    "id": null,
+    "match": "missing"
+  },
+  {
+    "name": "MONSTER HUNTER RISE",
+    "id": "1022248949865791588",
+    "match": "unique"
+  },
+  {
+    "name": "Medieval Dynasty",
+    "id": "1162074139549519972",
+    "match": "unique"
+  },
+  {
+    "name": "Dawson Oaks Trailer Park",
+    "id": "1531874635870896230",
+    "match": "unique"
+  },
+  {
+    "name": "Welcome to Elderfield",
+    "id": "1428182708219019325",
+    "match": "unique"
+  },
+  {
+    "name": "Barony",
+    "id": "1124352329169256518",
+    "match": "unique"
+  },
+  {
+    "name": "Minecraft Dungeons",
+    "id": "1124352351269048370",
+    "match": "unique"
+  },
+  {
+    "name": "Nuclear Option",
+    "id": "1185793510327210064",
+    "match": "unique"
+  },
+  {
+    "name": "Poppy Playtime",
+    "id": "1208158768211300372",
+    "match": "unique"
+  },
+  {
+    "name": "South Park™: The Stick of Truth™",
+    "id": "425457961574596608",
+    "match": "unique"
+  },
+  {
+    "name": "GONE Fishing",
+    "id": "1399104920015343708",
+    "match": "unique"
+  },
+  {
+    "name": "SONIC PICO PARK",
+    "id": null,
+    "match": "missing"
+  }
+]
